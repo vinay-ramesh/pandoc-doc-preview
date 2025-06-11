@@ -1,5 +1,3 @@
-// 
-
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css"; // Assuming you have this CSS file
@@ -23,35 +21,47 @@ function App() {
       }
 
       const range = selection.getRangeAt(0);
-
+      console.log({selection, range})
       // Check if the selection is within the editor's content div
       if (editorContentRef.current && editorContentRef.current.contains(range.commonAncestorContainer)) {
         console.log("Selected portion is from Editor Content!");
         alert("Selected portion is from Editor Content!");
         setOpenEditor(true)
-      }
-      // Check if the selection is within the Pandoc's content div
-      else if (pandocContentRef.current && pandocContentRef.current.contains(range.commonAncestorContainer)) {
+      } else if (pandocContentRef.current && pandocContentRef.current.contains(range.commonAncestorContainer)) {
         console.log("Selected portion is from Pandoc (Preview) Content!");
-        alert("Selected portion is from Pandoc (Preview) Content!");
+        // alert("Selected portion is from Pandoc (Preview) Content!");
 
-        // --- NEW: Get the parent tag for the selected portion within Pandoc content ---
-        let selectedNode = range.commonAncestorContainer;
-        let parentElement = selectedNode.nodeType === Node.ELEMENT_NODE ? selectedNode : selectedNode.parentElement;
+        let currentElement = range.commonAncestorContainer;
+        let rootParentTag = null;
 
-        // Ensure we're within the pandocContentRef div, but not necessarily that div itself
-        while (parentElement && parentElement !== pandocContentRef.current) {
-          // Check if the parent is an element node (e.g., <p>, <h1>, <span>)
-          if (parentElement.nodeType === Node.ELEMENT_NODE) {
-            console.log("Closest parent tag for Pandoc selection:", parentElement.tagName);
-            // If you want the actual HTML element:
-            // console.log("Parent Element:", parentElement);
-            alert(`Closest parent tag for Pandoc selection: <${parentElement.tagName}>`);
-            break; // Found the closest parent element, stop
+        // Traverse upwards from the commonAncestorContainer until we reach the pandocContentRef
+        while (currentElement && currentElement !== pandocContentRef.current) {
+          // If the current element's parent is the pandocContentRef.current,
+          // then the currentElement is the highest-level child containing the selection.
+          if (currentElement.parentElement === pandocContentRef.current) {
+            rootParentTag = currentElement;
+            break; // Found it!
           }
-          parentElement = parentElement.parentElement; // Move up to the next parent
+          currentElement = currentElement.parentElement; // Move up the DOM tree
         }
-        // --- END NEW ---
+
+        if (rootParentTag) {
+          console.log("Root parent tag for Pandoc selection:", rootParentTag, rootParentTag.tagName);
+          // alert(`Root parent tag for Pandoc selection: <${rootParentTag.tagName}>`);
+
+          const newFontSize = "22px"; // You can get this value from a user input, a dropdown, etc.
+          rootParentTag.style.fontSize = newFontSize;
+          rootParentTag.style.backgroundColor = 'yellow';
+
+          // If you also want to see the outer HTML of this root parent tag:
+          // console.log("Root Parent Element HTML:", rootParentTag.outerHTML);
+        } else {
+          // This case might happen if the selection itself is just direct text inside pandocContentRef
+          // without being wrapped in any block-level element, or if the commonAncestorContainer
+          // *is* pandocContentRef.current (though our outer `if` condition should prevent this specific case).
+          console.log("Could not find a distinct root parent tag within Pandoc content (might be direct text or selection spans across roots).");
+          // alert("Could not find a distinct root parent tag within Pandoc content.");
+        }
       }
       // If the selection spans across both or outside, you might need more complex logic
       else if (previewRef.current.contains(range.commonAncestorContainer)) {
