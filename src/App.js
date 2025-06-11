@@ -273,6 +273,41 @@ function App() {
   const pandocContentRef = useRef(null);
   const [currentSelectedRootParentTag, setCurrentSelectedRootParentTag] = useState(null);
   const [selectionTimeoutId, setSelectionTimeoutId] = useState(null);
+  const [selectedFont, setSelectedFont] = useState('Inter');
+
+  const googleFonts = [
+    { name: 'Inter', value: 'Inter' },
+    { name: 'Roboto', value: 'Roboto' },
+    { name: 'Open Sans', value: 'Open+Sans' },
+    { name: 'Lato', value: 'Lato' },
+    { name: 'Montserrat', value: 'Montserrat' },
+    { name: 'Playfair Display', value: 'Playfair+Display' },
+    { name: 'Lora', value: 'Lora' },
+    { name: 'Nunito', value: 'Nunito' },
+    { name: 'Oswald', value: 'Oswald' },
+    { name: 'Ubuntu', value: 'Ubuntu' },
+  ];
+
+  useEffect(() => {
+    // Function to create and append a <link> tag for a Google Font
+    const loadFont = (fontFamily) => {
+      const link = document.createElement('link');
+      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@400;700&display=swap`;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+      // Optionally, remove the link when the component unmounts
+      return () => {
+          document.head.removeChild(link);
+      };
+    };
+
+    // Load each font from the googleFonts list
+    googleFonts.forEach(font => loadFont(font.value));
+
+    // Set the initial font to Inter (or another default from your list)
+    // Ensure 'Inter' is always loaded or pick a different default if not
+    document.body.style.fontFamily = 'Inter, sans-serif';
+  }, []);
 
   useEffect(() => {
     const handleSelection = (e) => {
@@ -374,6 +409,9 @@ function App() {
     // 3. Apply the new styles to this temporary, detached element
     elementToModify.style.fontSize = fontSize;
     elementToModify.style.backgroundColor = backgroundColor;
+    elementToModify.style.fontFamily = selectedFont;
+
+    // document.body.style.fontFamily = `${selectedFont}, sans-serif`;
 
     // 4. Get the outerHTML of the modified temporary element
     const modifiedOuterHTML = tempDiv.innerHTML;
@@ -596,6 +634,16 @@ function App() {
               <option value="yellow">Yellow</option>
               <option value="lightblue">Light Blue</option>
               <option value="wheat">Wheat</option>
+            </select>
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <label>Background Color: </label>
+            <select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
+              {googleFonts.map((font) => (
+                <option key={font.name} value={font.name}>
+                  {font.name}
+                </option>
+              ))}
             </select>
           </div>
           <button onClick={applyStyleToSelectedElement} style={{ marginRight: '10px' }}>Apply</button>
