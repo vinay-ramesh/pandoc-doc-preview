@@ -1,3 +1,4 @@
+// Version 1
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css"; // Assuming you have this CSS file
@@ -14,14 +15,14 @@ function App() {
 
   // Effect for handling text selection
   useEffect(() => {
-    const handleSelection = () => {
+    const handleSelection = (e) => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed || !previewRef.current) {
         return; // No selection or selection not within the main preview
       }
 
       const range = selection.getRangeAt(0);
-      console.log({selection, range})
+      console.log({ selection, range })
       // Check if the selection is within the editor's content div
       if (editorContentRef.current && editorContentRef.current.contains(range.commonAncestorContainer)) {
         console.log("Selected portion is from Editor Content!");
@@ -48,11 +49,9 @@ function App() {
         if (rootParentTag) {
           console.log("Root parent tag for Pandoc selection:", rootParentTag, rootParentTag.tagName);
           // alert(`Root parent tag for Pandoc selection: <${rootParentTag.tagName}>`);
-
           const newFontSize = "22px"; // You can get this value from a user input, a dropdown, etc.
           rootParentTag.style.fontSize = newFontSize;
           rootParentTag.style.backgroundColor = 'yellow';
-
           // If you also want to see the outer HTML of this root parent tag:
           // console.log("Root Parent Element HTML:", rootParentTag.outerHTML);
         } else {
@@ -124,7 +123,8 @@ function App() {
       setPreviewContent(`<p style="color: red;">Error: ${err.response ? err.response.data.error : err.message}</p>`);
     }
   };
-  console.log("previewContent", previewContent)
+  // console.log("previewContent", previewContent)
+
   return (
     <div style={{ padding: 20 }}>
       {/* --- NEW/UPDATED: CSS for responsive images and other elements --- */}
