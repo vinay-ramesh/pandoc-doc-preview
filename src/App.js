@@ -492,6 +492,32 @@ function App() {
     }
   };
 
+  const handlePrint = () => {
+    if (!previewRef.current) {
+      console.error("The div reference for PDF generation is null.");
+      return;
+    }
+
+    // Check if html2pdf is loaded
+    if (typeof window.html2pdf === 'undefined') {
+      console.error("html2pdf.js library is not loaded. Please ensure the CDN script is included.");
+      // Provide a user-friendly message or fallback here if needed
+      return;
+    }
+
+    // PDF options
+    const options = {
+      margin: 5,
+      filename: 'document_content.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: true, useCORS: true }, // scale up for better quality
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+
+    // Use html2pdf to generate the PDF
+    window.html2pdf().set(options).from(previewRef.current).save();
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <style>
@@ -587,6 +613,11 @@ function App() {
         </div>
 
         <h3>Combined Preview</h3>
+        <button
+          onClick={handlePrint}
+        >
+          Download Content as PDF
+        </button>
         <div
           ref={previewRef}
           className="mathjax-preview"
@@ -594,7 +625,7 @@ function App() {
             border: "1px solid #ccc",
             padding: "15px",
             minHeight: "200px",
-            backgroundColor: "#f9f9f9",
+            backgroundColor: "#fff",
             overflowX: 'auto'
           }}
         >
