@@ -260,7 +260,7 @@ function App() {
   const [previewContent, setPreviewContent] = useState("");
   const [editorContent, setEditorContent] = useState("");
   const [openEditor, setOpenEditor] = useState(false);
-
+  
   // Modal related states
   const [showModal, setShowModal] = useState(false);
   const [fontSize, setFontSize] = useState("16px");
@@ -453,41 +453,104 @@ function App() {
 
   // ... (rest of your App.js code remains the same) ...
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    // setFile(e.target.files[0]);
+    setFile(e.target.files); 
   };
 
+  // const handleUpload = async () => {
+  //   if (!file) {
+  //     alert("Please select a file first!");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+  //   formData.append("file", file);
+
+  //   try {
+  //     setPreviewContent("Loading and converting document...");
+  //     const res = await axios.post("http://localhost:5000/upload", formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data'
+  //       }
+  //     });
+  //     setPreviewContent(res.data.content);
+
+  //     if (window.MathJax && window.MathJax.typesetPromise) {
+  //       window.MathJax.typesetPromise([editorContentRef.current, pandocContentRef.current])
+  //         .then(() => {
+  //           console.log("MathJax typeset complete for all content!");
+  //         })
+  //         .catch(err => {
+  //           console.error("MathJax typesetting error:", err);
+  //         });
+  //     } else {
+  //       console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
+  //     }
+
+  //   } catch (err) {
+  //     console.error("Error uploading file or processing conversion", err.response ? err.response.data : err.message);
+  //     setPreviewContent(`<p style="color: red;">Error: ${err.response ? err.response.data.error : err.message}</p>`);
+  //   }
+  // };
+
+  const handleClick = () => {
+    console.log("clicked")
+  }
+  
   const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a file first!");
+    if (!file || file.length === 0) { // Check if 'file' (FileList) is empty
+      alert("Please select files first!");
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+    // Loop through the FileList and append each file with the correct field name "files"
+    for (let i = 0; i < file.length; i++) {
+      formData.append("files", file[i]); // <--- THIS IS THE CRUCIAL LINE: "files" (plural)
+    }
 
     try {
-      setPreviewContent("Loading and converting document...");
+      setPreviewContent("Loading and converting documents...");
       const res = await axios.post("http://localhost:5000/upload", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-type'
         }
       });
-      setPreviewContent(res.data.content);
+      
+      // ... (rest of your response handling logic for multiple files) ...
+      if (res.data.contents && res.data.contents.length > 0) {
+        // const combinedHtml = res.data.contents.map(item => `
+        //     <div style="border: 1px dashed #ccc; padding: 10px; margin-bottom: 10px;">
+        //       <h3>File: ${item.filename}</h3>
+        //       ${item.content}
+        //     </div>
+        //   `).join('');
+        const combinedHtml = res.data.contents.map(item => `
+            qno ${item.content}
+            <button onClick={handleClick}>Click</button>
+        `).join('');
+        setPreviewContent(combinedHtml);
 
-      if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise([editorContentRef.current, pandocContentRef.current])
-          .then(() => {
-            console.log("MathJax typeset complete for all content!");
-          })
-          .catch(err => {
-            console.error("MathJax typesetting error:", err);
-          });
+        if (res.data.failed && res.data.failed.length > 0) {
+          alert(`Some files failed to convert: ${res.data.failed.map(f => f.filename).join(', ')}. Check console for details.`);
+          console.error("Failed conversions:", res.data.failed);
+        }
       } else {
-        console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
+        setPreviewContent("<p style='color: red;'>No content received.</p>");
       }
 
+      // Re-typeset MathJax if necessary after updating content
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        setTimeout(() => { // Small delay to ensure DOM is updated
+          window.MathJax.typesetPromise([pandocContentRef.current, editorContentRef.current])
+            .then(() => console.log("MathJax typeset complete for combined content!"))
+            .catch(err => console.error("MathJax typesetting error:", err));
+        }, 50);
+      }
+
+
     } catch (err) {
-      console.error("Error uploading file or processing conversion", err.response ? err.response.data : err.message);
+      console.error("Error uploading files or processing conversion", err.response ? err.response.data : err.message);
       setPreviewContent(`<p style="color: red;">Error: ${err.response ? err.response.data.error : err.message}</p>`);
     }
   };
@@ -517,7 +580,7 @@ function App() {
     // Use html2pdf to generate the PDF
     window.html2pdf().set(options).from(previewRef.current).save();
   };
-
+  console.log("previewContent", previewContent)
   return (
     <div style={{ padding: 20 }}>
       <style>
@@ -594,7 +657,7 @@ function App() {
       </style>
 
       <h2>DOCX to HTML with MathML Preview</h2>
-      <input type="file" accept=".docx" onChange={handleFileChange} />
+      <input type="file" accept=".docx" onChange={handleFileChange} multiple />
       <button onClick={handleUpload} disabled={!file}>Upload & Preview</button>
 
       <div style={{ marginTop: 30 }}>
