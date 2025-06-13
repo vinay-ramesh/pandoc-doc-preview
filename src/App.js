@@ -527,7 +527,11 @@ function App() {
         //   `).join('');
         const combinedHtml = res.data.contents.map(item => `
             qno ${item.content}
-            <button onClick={handleClick}>Click</button>
+            <button  onClick="handleClick()">Click</button>
+              <div>
+                        <button onclick="handleAdmission()">Admit</button>
+                        <button onclick="handleAdmission()">Deny</button>
+                    </div>
         `).join('');
         setPreviewContent(combinedHtml);
 
