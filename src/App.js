@@ -758,6 +758,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 import RichTextEditor from './RichTextEditor';
+import dummyResponse from "./dummyResponse"
 
 function App() {
   const [file, setFile] = useState(null);
@@ -781,10 +782,6 @@ function App() {
   // --- NEW: Function to handle clicks on dynamically added buttons ---
   const handleDynamicButtonClick = (fileIndex) => {
     console.log(`Dynamic button clicked for file index: ${fileIndex}`);
-    // You can add more specific logic here, e.g.,
-    // - Open a different modal for this specific file.
-    // - Perform some action related to the content of this specific file.
-    // - Log the file details (you'd need to store res.data.contents in a state if you need full access here).
   };
 
   // --- NEW: useEffect to attach event listeners to dynamic buttons ---
@@ -975,15 +972,11 @@ function App() {
       if (res.data.contents && res.data.contents.length > 0) {
         // --- MODIFIED: Include class and data attribute for dynamic buttons ---
         const combinedHtml = res.data.contents.map((item, index) => `
-            <div class="file-section" style="margin-bottom: 20px; padding: 15px; display:flex; border: 1px solid #eee; border-radius: 5px;">
-              <h3>File: ${item.filename}</h3>
-              <p>Question No: ${index + 1}</p>
               ${item.content}
               <button class="dynamic-action-button" data-file-index="${index}" 
                       style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
                 Click for ${item.filename}
               </button>
-            </div>
           `).join('');
         setPreviewContent(combinedHtml);
 
@@ -1142,7 +1135,7 @@ function App() {
           <div style={{ marginBottom: 10 }}>
             <label>Font Size: </label>
             <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
-              {Array.from({ length: (30 - 12) / 2 + 1 }, (_, i) => 12 + i * 2).map(size => (
+              {Array.from({ length: (24 - 12) / 4 + 1 }, (_, i) => 12 + i * 4).map(size => (
                 <option key={size} value={`${size}px`}>{size}px</option>
               ))}
             </select>
