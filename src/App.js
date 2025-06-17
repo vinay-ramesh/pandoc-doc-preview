@@ -99,7 +99,8 @@ function App() {
 
           const id = setTimeout(() => {
             setShowModal(true);
-          }, 3000);
+            // setSelectedIndex()
+          }, 1000);
           setSelectionTimeoutId(id);
 
         } else {
@@ -137,12 +138,12 @@ function App() {
     // 1. Get the current outerHTML of the element from the live DOM
     // This string needs to precisely match a substring in `previewContent` for replacement.
     const originalOuterHTML = currentSelectedRootParentTag.outerHTML;
-
+    console.log("originalOuterHTML", originalOuterHTML)
     // 2. Create a temporary DOM element in memory to modify its style
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = originalOuterHTML;
     const elementToModify = tempDiv.firstChild; // This is the root element parsed from the string
-
+    console.log("elementToModify", elementToModify)
     if (!elementToModify || elementToModify.nodeType !== Node.ELEMENT_NODE) {
       console.error("Failed to parse element for style modification from string.");
       setShowModal(false);
@@ -158,11 +159,11 @@ function App() {
 
     // 4. Get the outerHTML of the modified temporary element
     const modifiedOuterHTML = tempDiv.innerHTML;
-
+    console.log("modifiedContent", modifiedOuterHTML)
     // 5. Replace the original HTML string with the modified HTML string in the state
     // This is the most fragile part of this approach due to string matching.
     const updatedPreviewContent = previewContent.replace(originalOuterHTML, modifiedOuterHTML);
-
+    console.log("updatedPreview", updatedPreviewContent)
     if (updatedPreviewContent === previewContent) {
       console.warn("No replacement occurred. Original HTML might not have been found exactly matching in previewContent. This can happen due to minor parsing differences or attribute order changes by the browser.");
     }
@@ -213,7 +214,7 @@ function App() {
   const handleClick = () => {
     console.log("clicked")
   }
-
+  console.log("customList", customList)
   return (
     <div style={{ padding: 20 }}>
       <style>
@@ -326,7 +327,11 @@ function App() {
             overflowX: 'auto'
           }}
         >
-          <div ref={pandocContentRef} dangerouslySetInnerHTML={{ __html: previewContent }} />
+          <div ref={pandocContentRef}>
+            {customList.map((ele, index) => {
+              return <div  key={index} dangerouslySetInnerHTML={{ __html: ele.content }} /> 
+            })}
+          </div>
         </div>
       </div>
 
