@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
 import RichTextEditor from './RichTextEditor';
 import { dummyResponse } from "./dummyResponse"
+// import { v4 as uuidv4 } from 'uuid'; // Uncomment if you install uuid
 
 function App() {
   const [previewContent, setPreviewContent] = useState("");
@@ -12,16 +13,18 @@ function App() {
 
   // Modal related states
   const [showModal, setShowModal] = useState(false);
-  const [fontSize, setFontSize] = useState("16px");
-  const [backgroundColor, setBackgroundColor] = useState("");
+  const [fontSize, setFontSize] = useState("16px"); // Controls modal input
+  const [backgroundColor, setBackgroundColor] = useState(""); // Controls modal input
   const modalRef = useRef(null);
 
   // Selection related states
   const previewRef = useRef(null);
-  const pandocContentRef = useRef(null);
+  const editorContentRef = useRef(null);
+  const contentWrapperRef = useRef(null); // Single ref for all dynamic content
+  // currentSelectedRootParentTag will now refer to the actual DOM node whose styles we want to read/apply
   const [currentSelectedRootParentTag, setCurrentSelectedRootParentTag] = useState(null);
   const [selectionTimeoutId, setSelectionTimeoutId] = useState(null);
-  const [selectedFont, setSelectedFont] = useState('Inter');
+  const [selectedFont, setSelectedFont] = useState('Inter'); // Controls modal input
 
   const googleFonts = [
     { name: 'Inter', value: 'Inter' },
@@ -36,9 +39,8 @@ function App() {
     { name: 'Ubuntu', value: 'Ubuntu' },
   ];
 
-  // Font updation
+  // Font updation (no change)
   useEffect(() => {
-    // Function to create and append a <link> tag for a Google Font
     const loadFont = (fontFamily) => {
       const link = document.createElement('link');
       link.href = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@400;700&display=swap`;
@@ -49,14 +51,11 @@ function App() {
       };
     };
 
-    // Load each font from the googleFonts list
     googleFonts.forEach(font => loadFont(font.value));
-
-    // Set the initial font to Inter (or another default from your list)
-    // Ensure 'Inter' is always loaded or pick a different default if not
     document.body.style.fontFamily = 'Inter, sans-serif';
   }, []);
 
+  // Handle selection on any content to potentially show the modal
   useEffect(() => {
     const handleSelection = (e) => {
       if (modalRef.current && modalRef.current.contains(e.target)) {
@@ -65,12 +64,17 @@ function App() {
 
       if (selectionTimeoutId) {
         clearTimeout(selectionTimeoutId);
+        setSelectionTimeoutId(null);
       }
 
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed || !previewRef.current) {
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
+        // Reset modal inputs when selection is cleared or invalid
+        setFontSize("16px");
+        setBackgroundColor("");
+        setSelectedFont("Inter");
         return;
       }
 
@@ -78,40 +82,87 @@ function App() {
       if (!previewRef.current.contains(range.commonAncestorContainer)) {
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
+        setFontSize("16px");
+        setBackgroundColor("");
+        setSelectedFont("Inter");
         return;
       }
 
-      if (pandocContentRef.current && pandocContentRef.current.contains(range.commonAncestorContainer)) {
+      // If selection is within the general editor content area
+      if (editorContentRef.current && editorContentRef.current.contains(range.commonAncestorContainer)) {
+        setOpenEditor(true);
+        setShowModal(false);
+        setCurrentSelectedRootParentTag(null);
+        setFontSize("16px");
+        setBackgroundColor("");
+        setSelectedFont("Inter");
+        return;
+      }
+
+      // If selection is within the dynamic content (customList) area
+      if (contentWrapperRef.current && contentWrapperRef.current.contains(range.commonAncestorContainer)) {
         let currentElement = range.commonAncestorContainer;
         let rootParentTag = null;
+        let selectedDataItemId = null; // Store the ID from data-item-id
 
-        while (currentElement && currentElement !== pandocContentRef.current) {
-          if (currentElement.parentElement === pandocContentRef.current) {
+        // Traverse up to find the direct child of contentWrapperRef that contains the selection
+        while (currentElement && currentElement !== contentWrapperRef.current) {
+          if (currentElement.parentElement === contentWrapperRef.current) {
             rootParentTag = currentElement;
+            selectedDataItemId = rootParentTag.dataset.itemId; // Get the unique ID
             break;
           }
           currentElement = currentElement.parentElement;
         }
 
-        if (rootParentTag) {
-          console.log("Selected portion is from Pandoc (Preview) Content. Root parent tag:", rootParentTag.tagName);
-          setCurrentSelectedRootParentTag(rootParentTag);
-          
+        if (rootParentTag && selectedDataItemId) {
+          // If the selected element is an "Insert text here" button, don't show the styling modal
+          if (rootParentTag.classList.contains('dynamic-action-p')) {
+            setShowModal(false);
+            setCurrentSelectedRootParentTag(null);
+            setFontSize("16px");
+            setBackgroundColor("");
+            setSelectedFont("Inter");
+            return;
+          }
+
+          console.log("Selected dynamic content. Root parent:", rootParentTag.tagName, "ID:", selectedDataItemId);
+          setCurrentSelectedRootParentTag(rootParentTag); // Still store the DOM node for context if needed
+
+          // Find the corresponding item in customList by its ID and set modal inputs
+          const selectedItem = customList.find(item => item.id === selectedDataItemId);
+          if (selectedItem && selectedItem.styles) {
+            setFontSize(selectedItem.styles.fontSize);
+            setBackgroundColor(selectedItem.styles.backgroundColor);
+            setSelectedFont(selectedItem.styles.fontFamily);
+          } else {
+            // Default styles if no specific styles found for the selected item
+            setFontSize("16px");
+            setBackgroundColor("");
+            setSelectedFont("Inter");
+          }
+
+          // Set timeout to show the modal after 3 seconds
           const id = setTimeout(() => {
             setShowModal(true);
-            // setSelectedIndex()
-          }, 1000);
+          }, 3000);
           setSelectionTimeoutId(id);
 
         } else {
-          console.log("Could not find a distinct root parent tag within Pandoc content.");
+          console.log("Could not find a distinct root parent tag within dynamic content or missing data-item-id.");
           setShowModal(false);
           setCurrentSelectedRootParentTag(null);
+          setFontSize("16px");
+          setBackgroundColor("");
+          setSelectedFont("Inter");
         }
       } else {
-        console.log("Selection not in Pandoc content, hiding modal.");
+        console.log("Selection not in general preview content, hiding modal.");
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
+        setFontSize("16px");
+        setBackgroundColor("");
+        setSelectedFont("Inter");
       }
     };
 
@@ -125,9 +176,9 @@ function App() {
         clearTimeout(selectionTimeoutId);
       }
     };
-  }, [selectionTimeoutId]);
+  }, [selectionTimeoutId, customList]); // Added customList to dependencies
 
-  // --- MODIFIED FUNCTION TO PERSIST STYLE IN HTML STRING ---
+  // Apply style to the selected element's corresponding item in customList state
   const applyStyleToSelectedElement = () => {
     if (!currentSelectedRootParentTag) {
       console.warn("No element selected to apply styles.");
@@ -135,90 +186,124 @@ function App() {
       return;
     }
 
-    // 1. Get the current outerHTML of the element from the live DOM
-    // This string needs to precisely match a substring in `previewContent` for replacement.
-    const originalOuterHTML = currentSelectedRootParentTag.outerHTML;
-    console.log("originalOuterHTML", originalOuterHTML)
-    // 2. Create a temporary DOM element in memory to modify its style
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = originalOuterHTML;
-    const elementToModify = tempDiv.firstChild; // This is the root element parsed from the string
-    console.log("elementToModify", elementToModify)
-    if (!elementToModify || elementToModify.nodeType !== Node.ELEMENT_NODE) {
-      console.error("Failed to parse element for style modification from string.");
+    const selectedItemId = currentSelectedRootParentTag.dataset.itemId;
+    if (!selectedItemId) {
+      console.error("Selected element does not have a data-item-id. Cannot update customList accurately.");
       setShowModal(false);
       return;
     }
 
-    // 3. Apply the new styles to this temporary, detached element
-    elementToModify.style.fontSize = fontSize;
-    elementToModify.style.backgroundColor = backgroundColor;
-    elementToModify.style.fontFamily = selectedFont;
+    // Map over customList to find the item by its 'id' and update its 'styles' object
+    const updatedCustomList = customList.map(item => {
+      if (item.id === selectedItemId) {
+        // Return a new object for immutability, updating only the 'styles'
+        return {
+          ...item,
+          styles: {
+            fontSize: fontSize,
+            backgroundColor: backgroundColor,
+            fontFamily: selectedFont
+          },
+          is_modified: true
+        };
+      }
+      return item;
+    });
 
-    // document.body.style.fontFamily = `${selectedFont}, sans-serif`;
+    setCustomList(updatedCustomList); // This re-renders the component with new styles
 
-    // 4. Get the outerHTML of the modified temporary element
-    const modifiedOuterHTML = tempDiv.innerHTML;
-    console.log("modifiedContent", modifiedOuterHTML)
-    // 5. Replace the original HTML string with the modified HTML string in the state
-    // This is the most fragile part of this approach due to string matching.
-    const updatedPreviewContent = previewContent.replace(originalOuterHTML, modifiedOuterHTML);
-    console.log("updatedPreview", updatedPreviewContent)
-    if (updatedPreviewContent === previewContent) {
-      console.warn("No replacement occurred. Original HTML might not have been found exactly matching in previewContent. This can happen due to minor parsing differences or attribute order changes by the browser.");
-    }
-
-    setPreviewContent(updatedPreviewContent);
+    // Re-typeset MathJax, as font changes can affect its rendering dimensions
     if (window.MathJax && window.MathJax.typesetPromise) {
       setTimeout(() => {
-        window.MathJax.typesetPromise([pandocContentRef.current])
+        window.MathJax.typesetPromise([contentWrapperRef.current])
           .then(() => {
             console.log("MathJax re-typeset complete after style persistence!");
           })
           .catch(err => {
             console.error("MathJax re-typesetting error after style persistence:", err);
           });
-      }, 50); // 50ms delay
+      }, 50);
     } else {
       console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
     }
 
-    setShowModal(false); // Hide the modal after applying styles
-    setCurrentSelectedRootParentTag(null); // Clear the stored element
+    setShowModal(false);
+    setCurrentSelectedRootParentTag(null);
   };
 
   const handleUpload = useCallback(() => {
     const result = [];
-    let zeroElement = {
+    result.push({
       type: "editor",
-      content: '',
-      is_modified: false
-    };
-
-    result.push(zeroElement);
+      content: '<p class="dynamic-action-p" data-action-type="insert-editor">Insert text here</p>',
+      is_modified: false,
+      id: "editor-initial" // Unique ID for general editor slot
+    });
 
     for (let i = 0; i < serverRes.length; i++) {
-      result.push({ type: 'question', content: serverRes[i].content, is_modified: false }); // Add the original element
-      zeroElement.content = `<p class="dynamic-action-p" data-file-index="${i}" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">Insert text here</button>`
-      result.push(zeroElement);
-    }
-    const contentString = result.reduce((acc, ele) => {
-      return acc += ele.content
-    }, '')
-    console.log("result", result)
-    setCustomList(result)
-    setPreviewContent(contentString)
-    return result;
-  }, [serverRes])
+      const uniqueId = `question-${i}-${Date.now()}`; // Generate a truly unique ID
+      result.push({
+        type: 'question',
+        rawContent: serverRes[i].content, // Store original HTML content
+        is_modified: false,
+        id: uniqueId, // Store the ID within the item object
+        // Default styles for the item
+        styles: {
+          fontSize: "16px",
+          backgroundColor: "",
+          fontFamily: "Inter"
+        }
+      });
 
-  const handleClick = () => {
-    console.log("clicked")
-  }
+      result.push({
+        type: 'editor',
+        content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-file-index="${i}">Insert text here</p>`,
+        is_modified: false,
+        id: `editor-${i}-${Date.now()}` // Unique ID for each editor block
+      });
+    }
+
+    setCustomList(result);
+
+    setTimeout(() => {
+      if (window.MathJax && window.MathJax.typesetPromise && contentWrapperRef.current) {
+        window.MathJax.typesetPromise([contentWrapperRef.current])
+          .then(() => {
+            console.log("MathJax initial typesetting complete after upload!");
+          })
+          .catch(err => {
+            console.error("MathJax initial typesetting error:", err);
+          });
+      }
+    }, 100);
+  }, [serverRes]);
+
+  const handleInsertTextClick = useCallback((e) => {
+    const target = e.target.closest('.dynamic-action-p[data-action-type="insert-editor"]');
+    if (target) {
+      alert("Opening editor for text insertion!");
+      setOpenEditor(true);
+      // You might want to get the data-file-index here to know which editor slot was clicked
+      // const fileIndex = target.dataset.fileIndex;
+    }
+  }, []);
+
+  useEffect(() => {
+    const wrapper = contentWrapperRef.current;
+    if (wrapper) {
+      wrapper.addEventListener('click', handleInsertTextClick);
+      return () => {
+        wrapper.removeEventListener('click', handleInsertTextClick);
+      };
+    }
+  }, [handleInsertTextClick]);
+
   console.log("customList", customList)
   return (
     <div style={{ padding: 20 }}>
       <style>
         {`
+        /* ... (your existing CSS styles) ... */
         .mathjax-preview {
             width: 100%;
             padding: 15px;
@@ -289,6 +374,20 @@ function App() {
             display: block;
             border: none
         }
+        
+        .dynamic-action-p {
+          background-color: #007bff;
+          color: white;
+          padding: 8px 15px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          display: inline-block;
+          margin: 5px 0;
+        }
+        .question-content {
+            /* Now styles are applied via inline style prop */
+        }
         `}
       </style>
 
@@ -306,16 +405,11 @@ function App() {
             </div>
           )}
           <button className="p-2 w-fit border-2 rounded shadow" onClick={() => setOpenEditor(true)}>
-            Insert/Edit Text
+            Insert/Edit General Text
           </button>
         </div>
 
         <h3>Combined Preview</h3>
-        {/* <button
-          onClick={handlePrint}
-        >
-          Download Content as PDF
-        </button> */}
         <div
           ref={previewRef}
           className="mathjax-preview"
@@ -327,9 +421,29 @@ function App() {
             overflowX: 'auto'
           }}
         >
-          <div ref={pandocContentRef}>
-            {customList.map((ele, index) => {
-              return <div  key={index} dangerouslySetInnerHTML={{ __html: ele.content }} /> 
+          <div ref={editorContentRef} dangerouslySetInnerHTML={{ __html: editorContent }} />
+
+          <div ref={contentWrapperRef}>
+            {customList.map((ele) => {
+              if (ele.type === 'question') {
+                return (
+                  <div
+                    key={ele.id} // Use item.id as key for React's reconciliation
+                    data-item-id={ele.id} // Important for DOM lookup
+                    className="question-content"
+                    style={{ // Apply styles directly from the item's state
+                      fontSize: ele.styles.fontSize,
+                      backgroundColor: ele.styles.backgroundColor,
+                      fontFamily: `${ele.styles.fontFamily}, sans-serif`
+                    }}
+                    dangerouslySetInnerHTML={{ __html: ele.rawContent }} // Render the original raw content
+                  />
+                );
+              } else {
+                return (
+                  <div key={ele.id} dangerouslySetInnerHTML={{ __html: ele.content }} />
+                );
+              }
             })}
           </div>
         </div>
@@ -354,7 +468,7 @@ function App() {
           <div style={{ marginBottom: 10 }}>
             <label>Font Size: </label>
             <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
-              {Array.from({ length: (24 - 12) / 4 + 1 }, (_, i) => 12 + i * 4).map(size => (
+              {Array.from({ length: (30 - 12) / 2 + 1 }, (_, i) => 12 + i * 2).map(size => (
                 <option key={size} value={`${size}px`}>{size}px</option>
               ))}
             </select>
@@ -369,7 +483,7 @@ function App() {
             </select>
           </div>
           <div style={{ marginBottom: 10 }}>
-            <label>Background Color: </label>
+            <label>Font Family: </label>
             <select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
               {googleFonts.map((font) => (
                 <option key={font.name} value={font.name}>
