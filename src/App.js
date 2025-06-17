@@ -96,7 +96,7 @@ function App() {
         if (rootParentTag) {
           console.log("Selected portion is from Pandoc (Preview) Content. Root parent tag:", rootParentTag.tagName);
           setCurrentSelectedRootParentTag(rootParentTag);
-
+          
           const id = setTimeout(() => {
             setShowModal(true);
             // setSelectedIndex()
