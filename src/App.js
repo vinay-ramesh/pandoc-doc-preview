@@ -80,7 +80,7 @@ function App() {
         setCurrentSelectedRootParentTag(null);
         return;
       }
-      console.log("pandocContentRef.current", pandocContentRef.current, pandocContentRef.current.contains(range.commonAncestorContainer))
+
       if (pandocContentRef.current && pandocContentRef.current.contains(range.commonAncestorContainer)) {
         let currentElement = range.commonAncestorContainer;
         let rootParentTag = null;
@@ -349,7 +349,7 @@ function App() {
           <div style={{ marginBottom: 10 }}>
             <label>Font Size: </label>
             <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
-              {Array.from({ length: (30 - 12) / 2 + 1 }, (_, i) => 12 + i * 2).map(size => (
+              {Array.from({ length: (24 - 12) / 4 + 1 }, (_, i) => 12 + i * 4).map(size => (
                 <option key={size} value={`${size}px`}>{size}px</option>
               ))}
             </select>
