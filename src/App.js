@@ -238,7 +238,8 @@ function App() {
     const result = [];
     result.push({
       type: "editor",
-      content: '<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index="0">Insert text here</p>',
+      // content: '<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index="0">Insert text here</p>',
+      content: '<p>Insert text here</p>',
       is_modified: false,
       id: "editor-initial" // Unique ID for general editor slot
     });
@@ -260,7 +261,8 @@ function App() {
       const editorIndexInList = result.length; // Get current index before adding editor
       result.push({
         type: 'editor',
-        content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index="${editorIndexInList}">Insert text here</p>`,
+        content: `<p data-action-type="insert-editor" data-list-index="${editorIndexInList}">Insert text here</p>`,
+        // content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index="${editorIndexInList}">Insert text here</p>`,
         is_modified: false,
         id: `editor-<span class="math-inline">${i}</span>{Date.now()}`
       });
@@ -298,7 +300,8 @@ function App() {
       if (newList[selectedIndex]) {
         newList[selectedIndex] = {
           ...newList[selectedIndex],
-          content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index=${selectedIndex}>${contentToReplace}</p>`,
+          // content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index=${selectedIndex}>${contentToReplace}</p>`,
+          content: `<p>${contentToReplace}</p>`,
           is_modified: true
         }
       }
@@ -394,14 +397,15 @@ function App() {
         }
         
         .dynamic-action-p {
-          background-color: #007bff;
-          color: white;
+          /* background-color: #007bff; */
+          /* color: white; */
+          color: black;
           padding: 8px 15px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
-          display: inline-block;
-          margin: 5px 0;
+          /* display: inline-block; */
+          /* margin: 5px 0; */
         }
         .question-content {
             /* Now styles are applied via inline style prop */
@@ -426,7 +430,7 @@ function App() {
             }}
           >
             <div ref={contentWrapperRef}>
-              {customList?.length > 0 && customList?.map((ele) => {
+              {customList?.length > 0 && customList?.map((ele, index) => {
                 if (ele.type === 'question') {
                   return (
                     <div
@@ -443,7 +447,14 @@ function App() {
                   );
                 } else {
                   return (
-                    <div  key={ele.id} dangerouslySetInnerHTML={{ __html: ele.content }} />
+                    <div
+                      style={{ border: '1px dotted black', width: "100%" }}
+                      key={ele.id}
+                      class="dynamic-action-p"
+                      data-action-type="insert-editor"
+                      data-list-index={index}
+                      dangerouslySetInnerHTML={{ __html: ele.content }}
+                    />
                   );
                 }
               })}
@@ -503,7 +514,7 @@ function App() {
         <EditorModal
           openModal={openModal}
           handleOpenCloseModal={handleOpenCloseModal}
-        initialContent={customList[selectedIndex].content.replace(/<p[^>]*>(.*?)<\/p>/, '$1')}
+          initialContent={customList[selectedIndex]?.content?.replace(/<p[^>]*>(.*?)<\/p>/, '$1')}
           updatedEditorContent={updatedEditorContent}
         />
       }
