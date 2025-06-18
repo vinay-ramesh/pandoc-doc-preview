@@ -235,7 +235,7 @@ function App() {
     const result = [];
     result.push({
       type: "editor",
-      content: '<p class="dynamic-action-p" data-action-type="insert-editor">Insert text here</p>',
+      content: '<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index="0">Insert text here</p>',
       is_modified: false,
       id: "editor-initial" // Unique ID for general editor slot
     });
@@ -254,12 +254,12 @@ function App() {
           fontFamily: "Inter"
         }
       });
-
+      const editorIndexInList = result.length; // Get current index before adding editor
       result.push({
         type: 'editor',
-        content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-file-index="${i}">Insert text here</p>`,
+        content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index="${editorIndexInList}">Insert text here</p>`,
         is_modified: false,
-        id: `editor-${i}-${Date.now()}` // Unique ID for each editor block
+        id: `editor-<span class="math-inline">${i}</span>{Date.now()}`
       });
     }
 
@@ -279,18 +279,20 @@ function App() {
   }, [serverRes]);
 
   const handleInsertTextClick = useCallback((e) => {
+    // const target = e.target.closest('.dynamic-action-p[data-action-type="insert-editor"]');
     const target = e.target.closest('.dynamic-action-p[data-action-type="insert-editor"]');
     if (target) {
-      alert("Opening editor for text insertion!");
-      setOpenEditor(true);
+      // setOpenEditor(true);
       // You might want to get the data-file-index here to know which editor slot was clicked
-      // const fileIndex = target.dataset.fileIndex;
+      const listIndex = target.dataset.listIndex;
+      console.log("Clicked editor at customList index:", listIndex);
     }
   }, []);
 
   useEffect(() => {
     const wrapper = contentWrapperRef.current;
     if (wrapper) {
+      console.log("I am coming")
       wrapper.addEventListener('click', handleInsertTextClick);
       return () => {
         wrapper.removeEventListener('click', handleInsertTextClick);
