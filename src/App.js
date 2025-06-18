@@ -3,6 +3,7 @@ import "./App.css";
 import RichTextEditor from './RichTextEditor';
 import { dummyResponse } from "./dummyResponse"
 // import { v4 as uuidv4 } from 'uuid'; // Uncomment if you install uuid
+import EditorModal from "./components/EditorModal/EditorModal";
 
 function App() {
   const [previewContent, setPreviewContent] = useState("");
@@ -26,6 +27,8 @@ function App() {
   const [selectionTimeoutId, setSelectionTimeoutId] = useState(null);
   const [selectedFont, setSelectedFont] = useState('Inter'); // Controls modal input
 
+  const [openModal, setOpenModal] = useState(false)
+
   const googleFonts = [
     { name: 'Inter', value: 'Inter' },
     { name: 'Roboto', value: 'Roboto' },
@@ -38,6 +41,10 @@ function App() {
     { name: 'Oswald', value: 'Oswald' },
     { name: 'Ubuntu', value: 'Ubuntu' },
   ];
+
+  const handleOpenCloseModal = () => {
+    setOpenModal(!openModal)
+  }
 
   // Font updation (no change)
   useEffect(() => {
@@ -279,13 +286,11 @@ function App() {
   }, [serverRes]);
 
   const handleInsertTextClick = useCallback((e) => {
-    // const target = e.target.closest('.dynamic-action-p[data-action-type="insert-editor"]');
     const target = e.target.closest('.dynamic-action-p[data-action-type="insert-editor"]');
     if (target) {
-      // setOpenEditor(true);
-      // You might want to get the data-file-index here to know which editor slot was clicked
       const listIndex = target.dataset.listIndex;
       console.log("Clicked editor at customList index:", listIndex);
+      handleOpenCloseModal()
     }
   }, []);
 
@@ -302,9 +307,10 @@ function App() {
 
   console.log("customList", customList)
   return (
-    <div style={{ padding: 20 }}>
-      <style>
-        {`
+    <>
+      <div style={{ padding: 20 }}>
+        <style>
+          {`
         /* ... (your existing CSS styles) ... */
         .mathjax-preview {
             width: 100%;
@@ -391,114 +397,116 @@ function App() {
             /* Now styles are applied via inline style prop */
         }
         `}
-      </style>
+        </style>
 
-      <h2>DOCX to HTML with MathML Preview</h2>
-      <button onClick={handleUpload}>Upload & Preview</button>
+        <h2>DOCX to HTML with MathML Preview</h2>
+        <button onClick={handleUpload}>Upload & Preview</button>
 
-      <div style={{ marginTop: 30 }}>
-        <div>
-          {openEditor && (
-            <div className="h-full overflow-auto flex flex-col w-full">
-              <RichTextEditor initialValue={editorContent} onChange={setEditorContent} />
-              <button onClick={() => setOpenEditor(false)} className="p-2 w-fit border-2 rounded shadow">
-                Save Text
-              </button>
+        <div style={{ marginTop: 30 }}>
+          <div>
+            {openEditor && (
+              <div className="h-full overflow-auto flex flex-col w-full">
+                <RichTextEditor initialValue={editorContent} onChange={setEditorContent} />
+                <button onClick={() => setOpenEditor(false)} className="p-2 w-fit border-2 rounded shadow">
+                  Save Text
+                </button>
+              </div>
+            )}
+            <button className="p-2 w-fit border-2 rounded shadow" onClick={() => setOpenEditor(true)}>
+              Insert/Edit General Text
+            </button>
+          </div>
+
+          <h3>Combined Preview</h3>
+          <div
+            ref={previewRef}
+            className="mathjax-preview"
+            style={{
+              border: "1px solid #ccc",
+              padding: "15px",
+              minHeight: "200px",
+              backgroundColor: "#fff",
+              overflowX: 'auto'
+            }}
+          >
+            <div ref={editorContentRef} dangerouslySetInnerHTML={{ __html: editorContent }} />
+
+            <div ref={contentWrapperRef}>
+              {customList.map((ele) => {
+                if (ele.type === 'question') {
+                  return (
+                    <div
+                      key={ele.id} // Use item.id as key for React's reconciliation
+                      data-item-id={ele.id} // Important for DOM lookup
+                      className="question-content"
+                      style={{ // Apply styles directly from the item's state
+                        fontSize: ele.styles.fontSize,
+                        backgroundColor: ele.styles.backgroundColor,
+                        fontFamily: `${ele.styles.fontFamily}, sans-serif`
+                      }}
+                      dangerouslySetInnerHTML={{ __html: ele.rawContent }} // Render the original raw content
+                    />
+                  );
+                } else {
+                  return (
+                    <div key={ele.id} dangerouslySetInnerHTML={{ __html: ele.content }} />
+                  );
+                }
+              })}
             </div>
-          )}
-          <button className="p-2 w-fit border-2 rounded shadow" onClick={() => setOpenEditor(true)}>
-            Insert/Edit General Text
-          </button>
-        </div>
-
-        <h3>Combined Preview</h3>
-        <div
-          ref={previewRef}
-          className="mathjax-preview"
-          style={{
-            border: "1px solid #ccc",
-            padding: "15px",
-            minHeight: "200px",
-            backgroundColor: "#fff",
-            overflowX: 'auto'
-          }}
-        >
-          <div ref={editorContentRef} dangerouslySetInnerHTML={{ __html: editorContent }} />
-
-          <div ref={contentWrapperRef}>
-            {customList.map((ele) => {
-              if (ele.type === 'question') {
-                return (
-                  <div
-                    key={ele.id} // Use item.id as key for React's reconciliation
-                    data-item-id={ele.id} // Important for DOM lookup
-                    className="question-content"
-                    style={{ // Apply styles directly from the item's state
-                      fontSize: ele.styles.fontSize,
-                      backgroundColor: ele.styles.backgroundColor,
-                      fontFamily: `${ele.styles.fontFamily}, sans-serif`
-                    }}
-                    dangerouslySetInnerHTML={{ __html: ele.rawContent }} // Render the original raw content
-                  />
-                );
-              } else {
-                return (
-                  <div key={ele.id} dangerouslySetInnerHTML={{ __html: ele.content }} />
-                );
-              }
-            })}
           </div>
         </div>
+
+        {showModal && (
+          <div
+            ref={modalRef}
+            style={{
+              position: "fixed",
+              top: "30%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "#fff",
+              padding: "20px",
+              border: "1px solid #ccc",
+              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+              zIndex: 9999,
+            }}
+          >
+            <h4>Apply Style to Root Parent Tag</h4>
+            <div style={{ marginBottom: 10 }}>
+              <label>Font Size: </label>
+              <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
+                {Array.from({ length: (24 - 12) / 4 + 1 }, (_, i) => 12 + i * 4).map(size => (
+                  <option key={size} value={`${size}px`}>{size}px</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label>Background Color: </label>
+              <select value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)}>
+                <option value="">None</option>
+                <option value="yellow">Yellow</option>
+                <option value="lightblue">Light Blue</option>
+                <option value="wheat">Wheat</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label>Font Family: </label>
+              <select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
+                {googleFonts.map((font) => (
+                  <option key={font.name} value={font.name}>
+                    {font.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button onClick={applyStyleToSelectedElement} style={{ marginRight: '10px' }}>Apply</button>
+            <button onClick={() => { setShowModal(false); setCurrentSelectedRootParentTag(null); }}>Cancel</button>
+          </div>
+        )}
       </div>
-
-      {showModal && (
-        <div
-          ref={modalRef}
-          style={{
-            position: "fixed",
-            top: "30%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "#fff",
-            padding: "20px",
-            border: "1px solid #ccc",
-            boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-            zIndex: 9999,
-          }}
-        >
-          <h4>Apply Style to Root Parent Tag</h4>
-          <div style={{ marginBottom: 10 }}>
-            <label>Font Size: </label>
-            <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
-              {Array.from({ length: (24 - 12) / 4 + 1 }, (_, i) => 12 + i * 4).map(size => (
-                <option key={size} value={`${size}px`}>{size}px</option>
-              ))}
-            </select>
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>Background Color: </label>
-            <select value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)}>
-              <option value="">None</option>
-              <option value="yellow">Yellow</option>
-              <option value="lightblue">Light Blue</option>
-              <option value="wheat">Wheat</option>
-            </select>
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>Font Family: </label>
-            <select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
-              {googleFonts.map((font) => (
-                <option key={font.name} value={font.name}>
-                  {font.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button onClick={applyStyleToSelectedElement} style={{ marginRight: '10px' }}>Apply</button>
-          <button onClick={() => { setShowModal(false); setCurrentSelectedRootParentTag(null); }}>Cancel</button>
-        </div>
-      )}
-    </div>
+      {openModal && <EditorModal openModal={openModal} handleOpenCloseModal={handleOpenCloseModal}/>}
+    </>
   );
 }
 
