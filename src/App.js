@@ -11,6 +11,7 @@ function App() {
   const [openEditor, setOpenEditor] = useState(false);
   const [customList, setCustomList] = useState([])
   const [serverRes, setServerRes] = useState(dummyResponse)
+  const [selectedIndex, setSelectedIndex] = useState('')
 
   // Modal related states
   const [showModal, setShowModal] = useState(false);
@@ -42,9 +43,9 @@ function App() {
     { name: 'Ubuntu', value: 'Ubuntu' },
   ];
 
-  const handleOpenCloseModal = () => {
+  const handleOpenCloseModal = useCallback(() => {
     setOpenModal(!openModal)
-  }
+  }, [openModal])
 
   // Font updation (no change)
   useEffect(() => {
@@ -290,14 +291,29 @@ function App() {
     if (target) {
       const listIndex = target.dataset.listIndex;
       console.log("Clicked editor at customList index:", listIndex);
+      setSelectedIndex(listIndex)
       handleOpenCloseModal()
     }
-  }, []);
+  }, [handleOpenCloseModal]);
+
+  const updatedEditorContent = useCallback((updatedContent) => {
+    const contentToReplace = updatedContent.replace(/<\/?p>/g, "")
+    setCustomList((prevState) => {
+      const newList = [...prevState]
+      if (newList[selectedIndex]) {
+        newList[selectedIndex] = {
+          ...newList[selectedIndex],
+          content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index=${selectedIndex}>${contentToReplace}</p>`,
+          is_modified: true
+        }
+      }
+      return newList;
+    })
+  }, [selectedIndex])
 
   useEffect(() => {
     const wrapper = contentWrapperRef.current;
     if (wrapper) {
-      console.log("I am coming")
       wrapper.addEventListener('click', handleInsertTextClick);
       return () => {
         wrapper.removeEventListener('click', handleInsertTextClick);
@@ -311,7 +327,6 @@ function App() {
       <div style={{ padding: 20 }}>
         <style>
           {`
-        /* ... (your existing CSS styles) ... */
         .mathjax-preview {
             width: 100%;
             padding: 15px;
@@ -403,20 +418,6 @@ function App() {
         <button onClick={handleUpload}>Upload & Preview</button>
 
         <div style={{ marginTop: 30 }}>
-          <div>
-            {openEditor && (
-              <div className="h-full overflow-auto flex flex-col w-full">
-                <RichTextEditor initialValue={editorContent} onChange={setEditorContent} />
-                <button onClick={() => setOpenEditor(false)} className="p-2 w-fit border-2 rounded shadow">
-                  Save Text
-                </button>
-              </div>
-            )}
-            <button className="p-2 w-fit border-2 rounded shadow" onClick={() => setOpenEditor(true)}>
-              Insert/Edit General Text
-            </button>
-          </div>
-
           <h3>Combined Preview</h3>
           <div
             ref={previewRef}
@@ -429,10 +430,8 @@ function App() {
               overflowX: 'auto'
             }}
           >
-            <div ref={editorContentRef} dangerouslySetInnerHTML={{ __html: editorContent }} />
-
             <div ref={contentWrapperRef}>
-              {customList.map((ele) => {
+              {customList?.length > 0 && customList?.map((ele) => {
                 if (ele.type === 'question') {
                   return (
                     <div
@@ -449,7 +448,7 @@ function App() {
                   );
                 } else {
                   return (
-                    <div key={ele.id} dangerouslySetInnerHTML={{ __html: ele.content }} />
+                    <div  key={ele.id} dangerouslySetInnerHTML={{ __html: ele.content }} />
                   );
                 }
               })}
@@ -505,7 +504,14 @@ function App() {
           </div>
         )}
       </div>
-      {openModal && <EditorModal openModal={openModal} handleOpenCloseModal={handleOpenCloseModal}/>}
+      {openModal &&
+        <EditorModal
+          openModal={openModal}
+          handleOpenCloseModal={handleOpenCloseModal}
+        initialContent={customList[selectedIndex].content.replace(/<p[^>]*>(.*?)<\/p>/, '$1')}
+          updatedEditorContent={updatedEditorContent}
+        />
+      }
     </>
   );
 }

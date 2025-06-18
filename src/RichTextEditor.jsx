@@ -110,7 +110,7 @@ const RichTextEditor = ({ initialValue = '', onChange, placeholder }) => {
         }),
         [placeholder],
     );
-    console.log('content', content, content.length, typeof content);
+
     return (
         <div className="border border-black h-auto p-1 overflow-auto">
             <JoditEditor
