@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import RichTextEditor from '../../RichTextEditor';
 
 const EditorModal = (props) => {

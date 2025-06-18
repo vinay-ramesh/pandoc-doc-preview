@@ -54,29 +54,29 @@ const RichTextEditor = ({ initialValue = '', onChange, placeholder }) => {
     //     ],
     //   };
 
-    const handlePaste = (event) => {
-        const clipboardData = event.clipboardData;
-        const items = clipboardData?.items;
+    // const handlePaste = (event) => {
+    //     const clipboardData = event.clipboardData;
+    //     const items = clipboardData?.items;
 
-        if (items) {
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') === 0) {
-                    const file = items[i].getAsFile();
-                    const reader = new FileReader();
+    //     if (items) {
+    //         for (let i = 0; i < items.length; i++) {
+    //             if (items[i].type.indexOf('image') === 0) {
+    //                 const file = items[i].getAsFile();
+    //                 const reader = new FileReader();
 
-                    reader.onload = (e) => {
-                        const base64Image = e.target?.result;
-                        console.log('base64Image', base64Image);
-                        setContent((prevContent) => prevContent + `<img src="${base64Image}" alt="Pasted Image"/>`);
-                    };
+    //                 reader.onload = (e) => {
+    //                     const base64Image = e.target?.result;
+    //                     console.log('base64Image', base64Image);
+    //                     setContent((prevContent) => prevContent + `<img src="${base64Image}" alt="Pasted Image"/>`);
+    //                 };
 
-                    if (file) {
-                        reader.readAsDataURL(file);
-                    }
-                }
-            }
-        }
-    };
+    //                 if (file) {
+    //                     reader.readAsDataURL(file);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // };
 
     const config = useMemo(
         () => ({

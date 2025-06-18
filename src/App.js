@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
-import RichTextEditor from './RichTextEditor';
 import { dummyResponse } from "./dummyResponse"
 // import { v4 as uuidv4 } from 'uuid'; // Uncomment if you install uuid
 import EditorModal from "./components/EditorModal/EditorModal";
 
 function App() {
-  const [previewContent, setPreviewContent] = useState("");
-  const [editorContent, setEditorContent] = useState("");
-  const [openEditor, setOpenEditor] = useState(false);
   const [customList, setCustomList] = useState([])
   const [serverRes, setServerRes] = useState(dummyResponse)
   const [selectedIndex, setSelectedIndex] = useState('')
@@ -98,7 +94,6 @@ function App() {
 
       // If selection is within the general editor content area
       if (editorContentRef.current && editorContentRef.current.contains(range.commonAncestorContainer)) {
-        setOpenEditor(true);
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
         setFontSize("16px");
