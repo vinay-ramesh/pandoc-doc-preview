@@ -478,7 +478,7 @@ function App() {
                                 // console.log("questionNum", questionNum)
                                 if (ele.type === 'question') {
                                     return (
-                                        <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} >
+                                        <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
                                             <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
                                             <div
                                                 key={ele.id}
