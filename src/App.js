@@ -353,7 +353,10 @@ function App() {
             box-sizing: border-box;
              border: none;
         }
-
+        
+        tbody, th {
+        border: none;
+        }
         .mathjax-preview th,
         .mathjax-preview td {
             padding: 8px;
