@@ -365,6 +365,42 @@ function App() {
         setFile(e.target.files); // Store FileList for multiple files
     };
 
+    const handleResetStyle = () => {
+        if (!currentSelectedRootParentTag) {
+            console.warn("No element selected to apply styles.");
+            setShowModal(false);
+            return;
+        }
+
+        const selectedItemId = currentSelectedRootParentTag.dataset.itemId;
+        if (!selectedItemId) {
+            console.error("Selected element does not have a data-item-id. Cannot update customList accurately.");
+            setShowModal(false);
+            return;
+        }
+
+        // Map over customList to find the item by its 'id' and update its 'styles' object
+        const updatedCustomList = customList.map(item => {
+            if (item.id === selectedItemId) {
+                // Return a new object for immutability, updating only the 'styles'
+                return {
+                    ...item,
+                    styles: {
+                        fontSize: '16px',
+                        backgroundColor: '',
+                        fontFamily: 'Inter'
+                    },
+                    is_modified: true
+                };
+            }
+            return item;
+        });
+
+        setCustomList(updatedCustomList); // This re-renders the component with new styles
+
+        setShowModal(false); 
+        setCurrentSelectedRootParentTag(null);
+    }
     return (
         <>
             <div style={{ padding: 20 }}>
@@ -557,7 +593,7 @@ function App() {
                         </div>
                         <button onClick={applyStyleToSelectedElement} style={{ marginRight: '10px' }}>Apply</button>
                         <button onClick={() => { setShowModal(false); setCurrentSelectedRootParentTag(null); }}>Cancel</button>
-                        <button>Reset style</button>
+                        <button onClick={handleResetStyle}>Reset style</button>
                     </div>
                 )}
             </div>
