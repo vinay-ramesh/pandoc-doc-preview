@@ -301,7 +301,7 @@ function App() {
         newList[selectedIndex] = {
           ...newList[selectedIndex],
           // content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index=${selectedIndex}>${contentToReplace}</p>`,
-          content: `<p>${contentToReplace}</p>`,
+          content: `<p class="dynamic-action-p">${contentToReplace}</p>`,
           is_modified: true
         }
       }
@@ -319,7 +319,6 @@ function App() {
     }
   }, [handleInsertTextClick]);
 
-  console.log("customList", customList)
   return (
     <>
       <div style={{ padding: 20 }}>
@@ -335,28 +334,25 @@ function App() {
             border: none;
         }
 
-        .mathjax-preview img {
+        /* .mathjax-preview img {
             max-width: 100%;
             height: auto;
             display: block;
             margin: 0 auto;
             box-sizing: border-box;
-        }
+        } */
 
         .mathjax-preview table {
             width: 100%;
             table-layout: fixed;
             border-collapse: collapse;
-            margin-bottom: 1em;
+            margin: 0;
             overflow-x: auto;
             display: block;
             box-sizing: border-box;
-             border: none;
+            border: none;
         }
-        
-        tbody, th {
-        border: none;
-        }
+            
         .mathjax-preview th,
         .mathjax-preview td {
             padding: 8px;
@@ -400,15 +396,11 @@ function App() {
         }
         
         .dynamic-action-p {
-          /* background-color: #007bff; */
-          /* color: white; */
           color: black;
           padding: 8px 15px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
-          /* display: inline-block; */
-          /* margin: 5px 0; */
         }
         .question-content {
             /* Now styles are applied via inline style prop */
@@ -436,17 +428,20 @@ function App() {
               {customList?.length > 0 && customList?.map((ele, index) => {
                 if (ele.type === 'question') {
                   return (
-                    <div
-                      key={ele.id} // Use item.id as key for React's reconciliation
-                      data-item-id={ele.id} // Important for DOM lookup
-                      className="question-content"
-                      style={{ // Apply styles directly from the item's state
-                        fontSize: ele.styles.fontSize,
-                        backgroundColor: ele.styles.backgroundColor,
-                        fontFamily: `${ele.styles.fontFamily}, sans-serif`
-                      }}
-                      dangerouslySetInnerHTML={{ __html: ele.rawContent }} // Render the original raw content
-                    />
+                    <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
+                      <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
+                      <div
+                        key={ele.id} // Use item.id as key for React's reconciliation
+                        data-item-id={ele.id} // Important for DOM lookup
+                        className="question-content"
+                        style={{ // Apply styles directly from the item's state
+                          fontSize: ele.styles.fontSize,
+                          backgroundColor: ele.styles.backgroundColor,
+                          fontFamily: `${ele.styles.fontFamily}, sans-serif`
+                        }}
+                        dangerouslySetInnerHTML={{ __html: ele.rawContent }} // Render the original raw content
+                      />
+                    </div>
                   );
                 } else {
                   return (

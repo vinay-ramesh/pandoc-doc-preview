@@ -380,13 +380,13 @@ function App() {
             border: none;
         }
 
-        .mathjax-preview img {
+       /*  .mathjax-preview img {
             max-width: 100%;
             height: auto;
             display: block;
             margin: 0 auto;
             box-sizing: border-box;
-        }
+        } */
 
         .mathjax-preview table {
             width: 100%;
@@ -401,7 +401,7 @@ function App() {
             
         .mathjax-preview th,
         .mathjax-preview td {
-            padding: 8px;
+            padding: 5px;
             text-align: left;
             word-wrap: break-word;
             overflow-wrap: break-word;
@@ -498,7 +498,7 @@ function App() {
                                 } else {
                                     return (
                                         <div
-                                            style={{ border: '1px dotted black', width: "100%", margin: '10px 0px' }}
+                                            style={{ border: '1px dotted black', width: "100%", margin: '10px 0px', overflow: "auto" }}
                                             key={ele.id}
                                             className="dynamic-action-p"
                                             data-action-type="insert-editor"
@@ -557,6 +557,7 @@ function App() {
                         </div>
                         <button onClick={applyStyleToSelectedElement} style={{ marginRight: '10px' }}>Apply</button>
                         <button onClick={() => { setShowModal(false); setCurrentSelectedRootParentTag(null); }}>Cancel</button>
+                        <button>Reset style</button>
                     </div>
                 )}
             </div>

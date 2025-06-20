@@ -112,7 +112,7 @@ const RichTextEditor = ({ initialValue = '', onChange, placeholder }) => {
     );
 
     return (
-        <div className="border border-black h-auto p-1 overflow-auto">
+        <div style={{height:'auto', overflow:'auto'}}>
             <JoditEditor
                 ref={editor}
                 value={content}
