@@ -3,12 +3,14 @@ import "./App.css";
 import { dummyResponse } from "./dummyResponse"
 import axios from "axios";
 import EditorModal from "./components/EditorModal/EditorModal";
+import { usePDF } from 'react-to-pdf';
 
 function App() {
     const [customList, setCustomList] = useState([])
     const [serverRes, setServerRes] = useState(dummyResponse)
     const [selectedIndex, setSelectedIndex] = useState('')
     const [file, setFile] = useState('')
+    const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
 
     // Modal related states
     const [showModal, setShowModal] = useState(false);
@@ -398,9 +400,14 @@ function App() {
 
         setCustomList(updatedCustomList); // This re-renders the component with new styles
 
-        setShowModal(false); 
+        setShowModal(false);
         setCurrentSelectedRootParentTag(null);
     }
+
+    const handleDownloadPDF = () => {
+        console.log("handleDownloadPDF")
+    }
+    
     return (
         <>
             <div style={{ padding: 20 }}>
@@ -494,60 +501,98 @@ function App() {
 
                 <input type="file" accept=".docx" onChange={handleFileChange} multiple /> {/* Added 'multiple' */}
                 <button onClick={handleUpload} disabled={!file || file.length === 0}>Upload & Preview</button>
-
-                <div style={{ marginTop: 30 }}>
-                    <h3>Combined Preview</h3>
-                    <div
-                        ref={previewRef}
-                        className="mathjax-preview"
-                        style={{
-                            border: "1px solid #ccc",
-                            padding: "15px",
-                            minHeight: "200px",
-                            backgroundColor: "#fff",
-                            overflowX: 'auto'
-                        }}
-                    >
-                        <div ref={contentWrapperRef}>
-                            {customList?.length > 0 && customList?.map((ele, index) => {
-                                // const questionNum = index + 2 - 1
-                                // console.log("questionNum", questionNum)
-                                if (ele.type === 'question') {
-                                    return (
-                                        <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                                            <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "auto" }}>
+                    <div style={{ width: '50%' }}>
+                        {/* <h3>Combined Preview</h3> */}
+                        <div
+                            ref={previewRef}
+                            className="mathjax-preview"
+                            style={{
+                                // border: "1px solid #ccc",
+                                padding: "15px",
+                                minHeight: "200px",
+                                backgroundColor: "#fff",
+                                overflowX: 'auto'
+                            }}
+                        >
+                            <div ref={contentWrapperRef}>
+                                {customList?.length > 0 && customList?.map((ele, index) => {
+                                    // const questionNum = index + 2 - 1
+                                    // console.log("questionNum", questionNum)
+                                    if (ele.type === 'question') {
+                                        return (
+                                            <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
+                                                <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
+                                                <div
+                                                    key={ele.id}
+                                                    data-item-id={ele.id}
+                                                    className="question-content"
+                                                    style={{
+                                                        fontSize: ele.styles.fontSize,
+                                                        backgroundColor: ele.styles.backgroundColor,
+                                                        fontFamily: `${ele.styles.fontFamily}, sans-serif`,
+                                                        flexGrow: 1,
+                                                        // border: "1px solid"
+                                                    }}
+                                                    dangerouslySetInnerHTML={{ __html: ele.rawContent }}
+                                                />
+                                            </div>
+                                        );
+                                    } else {
+                                        return (
                                             <div
+                                                style={{ border: '1px dotted black', width: "100%", margin: '10px 0px', overflow: "auto" }}
                                                 key={ele.id}
-                                                data-item-id={ele.id}
-                                                className="question-content"
-                                                style={{
-                                                    fontSize: ele.styles.fontSize,
-                                                    backgroundColor: ele.styles.backgroundColor,
-                                                    fontFamily: `${ele.styles.fontFamily}, sans-serif`,
-                                                    flexGrow: 1,
-                                                    // border: "1px solid"
-                                                }}
-                                                dangerouslySetInnerHTML={{ __html: ele.rawContent }}
+                                                className="dynamic-action-p"
+                                                data-action-type="insert-editor"
+                                                data-list-index={index}
+                                                dangerouslySetInnerHTML={{ __html: ele.content }}
                                             />
-                                        </div>
-                                    );
-                                } else {
-                                    return (
-                                        <div
-                                            style={{ border: '1px dotted black', width: "100%", margin: '10px 0px', overflow: "auto" }}
-                                            key={ele.id}
-                                            className="dynamic-action-p"
-                                            data-action-type="insert-editor"
-                                            data-list-index={index}
-                                            dangerouslySetInnerHTML={{ __html: ele.content }}
-                                        />
-                                    );
-                                }
-                            })}
+                                        );
+                                    }
+                                })}
+                            </div>
                         </div>
                     </div>
+                    {/* PDF preview part */}
+                    <div style={{ background: '#fff', height: "100%", width: "50%" }} className="mathjax-preview" ref={targetRef}>
+                        {customList?.length > 0 && customList?.map((ele, index) => {
+                            if (ele.type === 'question') {
+                                return (
+                                    <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
+                                        <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
+                                        <div
+                                            key={ele.id}
+                                            data-item-id={ele.id}
+                                            className="question-content"
+                                            style={{
+                                                fontSize: ele.styles.fontSize,
+                                                backgroundColor: ele.styles.backgroundColor,
+                                                fontFamily: `${ele.styles.fontFamily}, sans-serif`,
+                                                flexGrow: 1,
+                                                // border: "1px solid"
+                                            }}
+                                            dangerouslySetInnerHTML={{ __html: ele.rawContent }}
+                                        />
+                                    </div>
+                                );
+                            } else if (ele.type === 'editor' && ele.is_modified) {
+                                // } else if (ele.type === 'editor' && ele.content.includes(`Insert text here`)) {
+                                return (
+                                    <div
+                                        style={{ width: "100%", margin: '10px 0px', overflow: "auto" }}
+                                        key={ele.id}
+                                        className="dynamic-action-p"
+                                        data-action-type="insert-editor"
+                                        data-list-index={index}
+                                        dangerouslySetInnerHTML={{ __html: ele.content }}
+                                    />
+                                );
+                            } return null
+                        })}
+                    </div>
                 </div>
-
+                <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
                     <div
                         ref={modalRef}
