@@ -4,6 +4,8 @@ import { dummyResponse } from "./dummyResponse"
 import axios from "axios";
 import EditorModal from "./components/EditorModal/EditorModal";
 import { usePDF } from 'react-to-pdf';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 function App() {
     const [customList, setCustomList] = useState([])
@@ -404,10 +406,32 @@ function App() {
         setCurrentSelectedRootParentTag(null);
     }
 
-    const handleDownloadPDF = () => {
-        console.log("handleDownloadPDF")
+    const handleDownloadPDF = async () => {
+        const input = document.getElementById('mathjax-preview-pdf');
+        const canvas = await html2canvas(input);
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for units, 'a4' for page size
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save('document.pdf');
     }
-    
+
     return (
         <>
             <div style={{ padding: 20 }}>
@@ -555,7 +579,7 @@ function App() {
                         </div>
                     </div>
                     {/* PDF preview part */}
-                    <div style={{ background: '#fff', height: "100%", width: "50%" }} className="mathjax-preview" ref={targetRef}>
+                    <div style={{ background: '#fff', height: "100%", width: "50%" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
                         {customList?.length > 0 && customList?.map((ele, index) => {
                             if (ele.type === 'question') {
                                 return (
