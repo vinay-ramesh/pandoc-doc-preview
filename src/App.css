@@ -4,3 +4,85 @@ body {
   padding: 0 !important;
   max-width: 100% !important;
 }
+
+        .mathjax-preview {
+            width: 100%;
+            padding: 15px;
+            min-height: 200px;
+            background-color: #f9f9f9;
+            overflow-x: auto;
+            box-sizing: border-box;
+            border: none;
+        }
+
+       /*  .mathjax-preview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            box-sizing: border-box;
+        } */
+
+        .mathjax-preview table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            margin: 0;
+            overflow-x: auto;
+            display: block;
+            box-sizing: border-box;
+            border: none;
+        }
+            
+        .mathjax-preview th,
+        .mathjax-preview td {
+            padding: 5px;
+            text-align: left;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            box-sizing: border-box;
+            border: none
+        }
+
+        .mathjax-preview pre,
+        .mathjax-preview code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .mathjax-preview p,
+        .mathjax-preview h1,
+        .mathjax-preview h2,
+        .mathjax-preview h3,
+        .mathjax-preview h4,
+        .mathjax-preview h5,
+        .mathjax-preview h6,
+        .mathjax-preview li {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            border: none
+        }
+
+        .mjx-chtml {
+            word-wrap: normal;
+            overflow-x: auto;
+            display: block;
+            border: none
+        }
+        
+        .dynamic-action-p {
+          color: black;
+          padding: 8px 15px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .question-content {
+            /* Now styles are applied via inline style prop */
+        }
