@@ -12,7 +12,7 @@ function App() {
     const [serverRes, setServerRes] = useState(dummyResponse)
     const [selectedIndex, setSelectedIndex] = useState('')
     const [file, setFile] = useState('')
-    const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
+    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
 
     // Modal related states
     const [showModal, setShowModal] = useState(false);
@@ -407,41 +407,42 @@ function App() {
     }
 
     const handleDownloadPDF = async () => {
-        const input = document.getElementById('mathjax-preview-pdf');
-        const canvas = await html2canvas(input);
-        const imgData = canvas.toDataURL('image/png');
+        // const input = document.getElementById('mathjax-preview-pdf');
+        // const canvas = await html2canvas(input);
+        // const imgData = canvas.toDataURL('image/png');
 
-        const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for units, 'a4' for page size
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 297; // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
+        // const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for units, 'a4' for page size
+        // const imgWidth = 210; // A4 width in mm
+        // const pageHeight = 297; // A4 height in mm
+        // const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // let heightLeft = imgHeight;
 
-        let position = 0;
+        // let position = 0;
 
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        // pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        // heightLeft -= pageHeight;
 
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
+        // while (heightLeft >= 0) {
+        //     position = heightLeft - imgHeight;
+        //     pdf.addPage();
+        //     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        //     heightLeft -= pageHeight;
+        // }
 
-        pdf.save('document.pdf');
+        // pdf.save('document.pdf');
+        console.log("I am there")
     }
 
     return (
         <>
             <div style={{ padding: 20 }}>
-                
-            <h2>DOCX to HTML with MathML Preview</h2>
+
+                <h2>DOCX to HTML with MathML Preview</h2>
 
                 <input type="file" accept=".docx" onChange={handleFileChange} multiple /> {/* Added 'multiple' */}
                 <button onClick={handleUpload} disabled={!file || file.length === 0}>Upload & Preview</button>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "auto" }}>
-                    <div style={{ width: '50%' }}>
+                {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "auto" }}> */}
+                    {/* <div style={{ width: '50%' }}> */}
                         {/* <h3>Combined Preview</h3> */}
                         <div
                             ref={previewRef}
@@ -456,12 +457,13 @@ function App() {
                         >
                             <div ref={contentWrapperRef}>
                                 {customList?.length > 0 && customList?.map((ele, index) => {
-                                    // const questionNum = index + 2 - 1
-                                    // console.log("questionNum", questionNum)
+
                                     if (ele.type === 'question') {
+                                        const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
+
                                         return (
                                             <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                                                <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
+                                                <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${questionNumber}. `}</div>
                                                 <div
                                                     key={ele.id}
                                                     data-item-id={ele.id}
@@ -492,14 +494,15 @@ function App() {
                                 })}
                             </div>
                         </div>
-                    </div>
+                    {/* </div> */}
                     {/* PDF preview part */}
-                    <div style={{ background: '#fff', height: "100%", width: "50%" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
+                    {/* <div style={{ background: '#fff', height: "100%", width: "50%" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
                         {customList?.length > 0 && customList?.map((ele, index) => {
                             if (ele.type === 'question') {
+                                const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
                                 return (
                                     <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                                        <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${1}. `}</div>
+                                        <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${questionNumber}. `}</div>
                                         <div
                                             key={ele.id}
                                             data-item-id={ele.id}
@@ -529,8 +532,8 @@ function App() {
                                 );
                             } return null
                         })}
-                    </div>
-                </div>
+                    </div> */}
+                {/* </div> */}
                 <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
                     <div
