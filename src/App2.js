@@ -7,6 +7,19 @@ import { usePDF } from 'react-to-pdf';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
+const googleFonts = [
+    { name: 'Inter', value: 'Inter' },
+    { name: 'Roboto', value: 'Roboto' },
+    { name: 'Open Sans', value: 'Open+Sans' },
+    { name: 'Lato', value: 'Lato' },
+    { name: 'Montserrat', value: 'Montserrat' },
+    { name: 'Playfair Display', value: 'Playfair+Display' },
+    { name: 'Lora', value: 'Lora' },
+    { name: 'Nunito', value: 'Nunito' },
+    { name: 'Oswald', value: 'Oswald' },
+    { name: 'Ubuntu', value: 'Ubuntu' },
+];
+
 function App() {
     const [customList, setCustomList] = useState([])
     const [serverRes, setServerRes] = useState(dummyResponse)
@@ -30,19 +43,6 @@ function App() {
     const [selectedFont, setSelectedFont] = useState('Inter'); // Controls modal input
 
     const [openModal, setOpenModal] = useState(false)
-
-    const googleFonts = [
-        { name: 'Inter', value: 'Inter' },
-        { name: 'Roboto', value: 'Roboto' },
-        { name: 'Open Sans', value: 'Open+Sans' },
-        { name: 'Lato', value: 'Lato' },
-        { name: 'Montserrat', value: 'Montserrat' },
-        { name: 'Playfair Display', value: 'Playfair+Display' },
-        { name: 'Lora', value: 'Lora' },
-        { name: 'Nunito', value: 'Nunito' },
-        { name: 'Oswald', value: 'Oswald' },
-        { name: 'Ubuntu', value: 'Ubuntu' },
-    ];
 
     const handleOpenCloseModal = useCallback(() => {
         setOpenModal(!openModal)
@@ -153,7 +153,7 @@ function App() {
                     // Set timeout to show the modal after 3 seconds
                     const id = setTimeout(() => {
                         setShowModal(true);
-                    }, 3000);
+                    }, 1000);
                     setSelectionTimeoutId(id);
 
                 } else {
@@ -407,30 +407,25 @@ function App() {
     }
 
     const handleDownloadPDF = async () => {
-        // const input = document.getElementById('mathjax-preview-pdf');
-        // const canvas = await html2canvas(input);
-        // const imgData = canvas.toDataURL('image/png');
-
-        // const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for units, 'a4' for page size
-        // const imgWidth = 210; // A4 width in mm
-        // const pageHeight = 297; // A4 height in mm
-        // const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        // let heightLeft = imgHeight;
-
-        // let position = 0;
-
-        // pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        // heightLeft -= pageHeight;
-
-        // while (heightLeft >= 0) {
-        //     position = heightLeft - imgHeight;
-        //     pdf.addPage();
-        //     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        //     heightLeft -= pageHeight;
-        // }
-
-        // pdf.save('document.pdf');
+      
         console.log("I am there")
+        const pdfElement = targetRef.current;
+        console.log("pdfElement", pdfElement)
+        if (!pdfElement) {
+            throw new Error('PDF preview element not found');
+        }
+
+        // Wait for MathJax to complete if available
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            await window.MathJax.typesetPromise([pdfElement]);
+        }
+
+        const originalContents = document.body.innerHTML;
+        const printContents = pdfElement.innerHTML; // Get the HTML content of your pdfElement
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents; // Restore original content
     }
 
     return (
@@ -482,7 +477,7 @@ function App() {
                                     } else {
                                         return (
                                             <div
-                                                style={{ border: '1px dotted black', width: "100%", margin: '10px 0px', overflow: "auto" }}
+                                                style={{ border: '1px dotted black', margin: '10px 0px', overflow: "auto" }}
                                                 key={ele.id}
                                                 className="dynamic-action-p"
                                                 data-action-type="insert-editor"
@@ -496,7 +491,7 @@ function App() {
                         </div>
                     {/* </div> */}
                     {/* PDF preview part */}
-                    {/* <div style={{ background: '#fff', height: "100%", width: "50%" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
+                    <div style={{ background: '#fff', height: "100%", width: "100%" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
                         {customList?.length > 0 && customList?.map((ele, index) => {
                             if (ele.type === 'question') {
                                 const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
@@ -532,7 +527,7 @@ function App() {
                                 );
                             } return null
                         })}
-                    </div> */}
+                    </div>
                 {/* </div> */}
                 <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
