@@ -638,7 +638,55 @@ function App() {
             }
             setFontSize(`${currentValue + 1}px`);
         }
-    }, [fontSize]);
+
+        if (!currentSelectedRootParentTag) {
+            console.warn("No element selected to apply styles.");
+            setShowModal(false);
+            return;
+        }
+
+        const selectedItemId = currentSelectedRootParentTag.dataset.itemId;
+        if (!selectedItemId) {
+            console.error("Selected element does not have a data-item-id. Cannot update customList accurately.");
+            setShowModal(false);
+            return;
+        }
+
+        // Map over customList to find the item by its 'id' and update its 'styles' object
+        const updatedCustomList = customList.map(item => {
+            if (item.id === selectedItemId) {
+                // Return a new object for immutability, updating only the 'styles'
+                return {
+                    ...item,
+                    styles: {
+                        fontSize: fontSize,
+                        backgroundColor: backgroundColor,
+                        fontFamily: selectedFont
+                    },
+                    is_modified: true
+                };
+            }
+            return item;
+        });
+
+        setCustomList(updatedCustomList); // This re-renders the component with new styles
+
+        // Re-typeset MathJax, as font changes can affect its rendering dimensions
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            setTimeout(() => {
+                window.MathJax.typesetPromise([contentWrapperRef.current])
+                    .then(() => {
+                        console.log("MathJax re-typeset complete after style persistence!");
+                    })
+                    .catch(err => {
+                        console.error("MathJax re-typesetting error after style persistence:", err);
+                    });
+            }, 50);
+        } else {
+            console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
+        }
+        
+    }, [backgroundColor, currentSelectedRootParentTag, customList, fontSize, selectedFont]);
 
     return (
         <>
