@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "./App.css";
 import { dummyResponse } from "./dummyResponse"
 import axios from "axios";
@@ -141,6 +141,7 @@ function App() {
                     // Find the corresponding item in customList by its ID and set modal inputs
                     const selectedItem = customList.find(item => item.id === selectedDataItemId);
                     if (selectedItem && selectedItem.styles) {
+                        console.log("selectedItem.styles.fontSize", selectedItem.styles.fontSize)
                         setFontSize(selectedItem.styles.fontSize);
                         setBackgroundColor(selectedItem.styles.backgroundColor);
                         setSelectedFont(selectedItem.styles.fontFamily);
@@ -622,6 +623,16 @@ function App() {
 
     }
 
+    const handleFontSize = useCallback((type) => {
+        const value = Number(fontSize.slice(0, -2))
+        if (type === "up") {
+            setFontSize(`${value + 1}px`)
+        } else if (type === "down") {
+            setFontSize(`${value - 1}px`)
+        }
+        console.log("fontSize", fontSize)
+    }, [fontSize])
+
     return (
         <>
             <div style={{ padding: 20 }}>
@@ -721,7 +732,7 @@ function App() {
                 </div>
                 <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
-                    <StyleModal modalRef={modalRef} fontSize={fontSize} setFontSize={setFontSize} backgroundColor={backgroundColor} setBackgroundColor={setBackgroundColor} selectedFont={selectedFont} setSelectedFont={setSelectedFont} googleFonts={googleFonts} applyStyleToSelectedElement={applyStyleToSelectedElement} setShowModal={setShowModal} setCurrentSelectedRootParentTag={setCurrentSelectedRootParentTag} handleResetStyle={handleResetStyle} />
+                    <StyleModal modalRef={modalRef} fontSize={fontSize} setFontSize={setFontSize} backgroundColor={backgroundColor} setBackgroundColor={setBackgroundColor} selectedFont={selectedFont} setSelectedFont={setSelectedFont} googleFonts={googleFonts} applyStyleToSelectedElement={applyStyleToSelectedElement} setShowModal={setShowModal} setCurrentSelectedRootParentTag={setCurrentSelectedRootParentTag} handleResetStyle={handleResetStyle} handleFontSize={handleFontSize} />
                 )}
             </div>
             {openModal &&

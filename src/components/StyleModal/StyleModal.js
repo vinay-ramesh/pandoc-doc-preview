@@ -1,7 +1,8 @@
-import React from 'react'
+import up from '../../assets/A_up.svg'
+import down from '../../assets/A_down.svg'
 
 const StyleModal = (props) => {
-    const { modalRef, fontSize, setFontSize, backgroundColor, setBackgroundColor, selectedFont, setSelectedFont, googleFonts, applyStyleToSelectedElement, setShowModal, setCurrentSelectedRootParentTag, handleResetStyle } = props
+    const { modalRef, fontSize, backgroundColor, setBackgroundColor, selectedFont, setSelectedFont, googleFonts, applyStyleToSelectedElement, setShowModal, setCurrentSelectedRootParentTag, handleResetStyle, handleFontSize } = props
 
     return (
         <div
@@ -19,13 +20,18 @@ const StyleModal = (props) => {
             }}
         >
             <h4>Apply Style to Root Parent Tag</h4>
-            <div style={{ marginBottom: 10 }}>
-                <label>Font Size: </label>
-                <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
+            <div style={{ marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
+                <label style={{ verticalAlign: "middle" }}>Font Size: {fontSize}</label>
+                {/* <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
                     {Array.from({ length: (24 - 12) / 4 + 1 }, (_, i) => 12 + i * 4).map(size => (
                         <option key={size} value={`${size}px`}>{size}px</option>
                     ))}
-                </select>
+                </select> */}
+                <div style={{ width: "60%", display: "flex", justifyContent: "space-between" }}>
+                    <img src={up} alt='increase-font-size' style={{ padding: "5px", border: "1px solid", textAlign: "center", scale: "1", cursor: "pointer" }} onClick={() => handleFontSize('up')} />
+                    <img src={down} alt='decrease-font-size' style={{ padding: "5px", border: "1px solid", textAlign: "center", scale: "1", cursor: "pointer" }} onClick={() => handleFontSize('down')} />
+                </div>
+
             </div>
             <div style={{ marginBottom: 10 }}>
                 <label>Background Color: </label>
