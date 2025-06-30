@@ -4,8 +4,6 @@ import { dummyResponse } from "./dummyResponse"
 import axios from "axios";
 import EditorModal from "./components/EditorModal/EditorModal";
 import { usePDF } from 'react-to-pdf';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import StyleModal from "./components/StyleModal/StyleModal";
 import PDFPreview from "./components/PDFPreview/PDFPreview";
 
@@ -27,7 +25,8 @@ function App() {
     const [serverRes, setServerRes] = useState(dummyResponse)
     const [selectedIndex, setSelectedIndex] = useState('')
     const [file, setFile] = useState('')
-    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
+    // const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
+    const targetRef = useRef(null)
 
     // Modal related states
     const [showModal, setShowModal] = useState(false);
@@ -237,7 +236,6 @@ function App() {
         } else {
             console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
         }
-
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
     };
@@ -625,14 +623,22 @@ function App() {
     }
 
     const handleFontSize = useCallback((type) => {
-        const value = Number(fontSize.slice(0, -2))
-        if (type === "up") {
-            setFontSize(`${value + 1}px`)
-        } else if (type === "down") {
-            setFontSize(`${value - 1}px`)
+        const currentValue = Number(fontSize.slice(0, -2));
+
+        if (type === "down") {
+            if (currentValue <= 12) {
+                alert("Cannot go below 12px font-size.");
+                return;
+            }
+            setFontSize(`${currentValue - 1}px`);
+        } else if (type === "up") {
+            if (currentValue >= 34) {
+                alert("Cannot go beyond 34px font-size.");
+                return;
+            }
+            setFontSize(`${currentValue + 1}px`);
         }
-        console.log("fontSize", fontSize)
-    }, [fontSize])
+    }, [fontSize]);
 
     return (
         <>
@@ -642,16 +648,15 @@ function App() {
 
                 <input type="file" accept=".docx" onChange={handleFileChange} multiple /> {/* Added 'multiple' */}
                 <button onClick={handleUpload} disabled={!file || file.length === 0}>Upload & Preview</button>
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <div
                         ref={previewRef}
                         className="mathjax-preview"
                         style={{
-                            // border: "1px solid #ccc",
+                            border: "1px solid #ccc",
                             padding: "15px",
                             minHeight: "200px",
                             backgroundColor: "#fff",
-                            // overflowX: 'auto'
                         }}
                     >
                         <div ref={contentWrapperRef}>
@@ -694,7 +699,7 @@ function App() {
                         </div>
                     </div>
                     {/* PDF preview part */}
-                        <PDFPreview targetRef={targetRef} customList={customList} />
+                    <PDFPreview targetRef={targetRef} customList={customList} />
                 </div>
                 <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
