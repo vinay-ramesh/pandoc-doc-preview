@@ -5,6 +5,14 @@ body {
   max-width: 100% !important;
 }
 
+.jodit-container:not(.jodit_inline) .jodit-wysiwyg {
+    margin: 0;
+    outline: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 8px;
+    position: relative;
+}
         .mathjax-preview {
             width: 100%;
             padding: 15px;
@@ -66,7 +74,9 @@ body {
         .mathjax-preview li {
             word-wrap: break-word;
             overflow-wrap: break-word;
-            border: none
+            border: none;
+            /* margin:0 ;
+            padding: 0 */
         }
 
         .mjx-chtml {

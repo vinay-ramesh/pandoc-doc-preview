@@ -407,25 +407,218 @@ function App() {
     }
 
     const handleDownloadPDF = async () => {
-      
-        console.log("I am there")
         const pdfElement = targetRef.current;
-        console.log("pdfElement", pdfElement)
         if (!pdfElement) {
             throw new Error('PDF preview element not found');
         }
 
-        // Wait for MathJax to complete if available
+        // Wait for MathJax to complete if available in the main window
         if (window.MathJax && window.MathJax.typesetPromise) {
-            await window.MathJax.typesetPromise([pdfElement]);
+            console.log("Waiting for MathJax to typeset in main window...");
+            try {
+                await window.MathJax.typesetPromise([pdfElement]);
+                console.log("MathJax typesetting complete in main window.");
+            } catch (error) {
+                console.error("MathJax typesetting failed in main window:", error);
+                // Continue even if MathJax fails, the inline script in the new window will try again
+            }
+        }
+        const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <title>Apps'n'Devices Technologies Pvt Ltd.</title>
+                    <meta charset="utf-8">
+                    <!-- Include Google Fonts -->
+                    ${googleFonts.map(font =>
+            `<link href="https://fonts.googleapis.com/css2?family=${font.value}:wght@400;700&display=swap" rel="stylesheet">`
+        ).join('\n                ')}
+                    
+                    <!-- Include MathJax if needed -->
+                    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+                    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+                    <script>
+                        window.MathJax = {
+                            tex: {
+                                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+                                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+                            },
+                            options: {
+                                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                            }
+                        };
+                    </script>
+                    
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            /* margin: 20px; */
+                            line-height: 1.6;
+                            color: #333;
+                        }
+                        
+                        .mathjax-preview {
+                            /* width: 100%; */
+                            padding: 15px;
+                            min-height: 200px;
+                            background-color: #fff;
+                            overflow-x: auto;
+                            box-sizing: border-box;
+                            border: none;
+                        }
+    
+                        .mathjax-preview table {
+                            width: 100%;
+                            table-layout: fixed;
+                            border-collapse: collapse;
+                            margin: 0;
+                            overflow-x: auto;
+                            display: block;
+                            box-sizing: border-box;
+                            border: none;
+                        }
+                            
+                        .mathjax-preview th,
+                        .mathjax-preview td {
+                            padding: 5px;
+                            text-align: left;
+                            word-wrap: break-word;
+                            overflow-wrap: break-word;
+                            box-sizing: border-box;
+                            border: none;
+                        }
+    
+                        .mathjax-preview pre,
+                        .mathjax-preview code {
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            overflow-x: auto;
+                            background-color: #f5f5f5;
+                            padding: 10px;
+                            border-radius: 4px;
+                            display: block;
+                            box-sizing: border-box;
+                        }
+    
+                        .mathjax-preview p,
+                        .mathjax-preview h1,
+                        .mathjax-preview h2,
+                        .mathjax-preview h3,
+                        .mathjax-preview h4,
+                        .mathjax-preview h5,
+                        .mathjax-preview h6,
+                        .mathjax-preview li {
+                            word-wrap: break-word;
+                            overflow-wrap: break-word;
+                            border: none;
+                            /* padding:0;
+                            margin:0 */
+                        }
+                        
+                        .mjx-chtml {
+                            word-wrap: normal;
+                            overflow-x: auto;
+                            display: block;
+                            border: none;
+                            min-height: 1em;
+                            line-height: 1.2;
+                        }
+                        
+                        .question-content {
+                            page-break-inside: avoid;
+                        }
+
+                        .question-content td > math[display="block"] {
+                            display: flex;
+                        }
+
+                        /* Print styles */
+                        @media print {
+                            * {
+                            overflow: hidden;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                                border: 1px solid
+                            }
+                            
+                            .page-break-before { page-break-before: always; }
+                            .page-break-after { page-break-after: always; }
+                            .no-page-break { page-break-inside: avoid; }
+
+                            .question-content {
+                                page-break-inside: avoid;
+                                margin-bottom: 20px;
+                            }
+
+                            .question-content td > math[display="block"] {
+                                display: flex;
+                            }
+
+                            .mjx-chtml {
+                                page-break-inside: avoid;
+                                -webkit-print-color-adjust: exact;
+                                color-adjust: exact;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="mathjax-preview">
+                        ${pdfElement.innerHTML}
+                    </div>
+                    
+                    <script>
+                        // Wait for content to load and MathJax to render, then trigger print
+                        window.addEventListener('load', function() {
+                            // If MathJax is available, wait for it to finish rendering
+                            if (window.MathJax && window.MathJax.startup) {
+                                window.MathJax.startup.promise.then(function() {
+                                    setTimeout(function() {
+                                        window.print();
+                                    }, 500);
+                                });
+                            } else {
+                                // If no MathJax, just wait a bit for fonts to load
+                                setTimeout(function() {
+                                    window.print();
+                                }, 1000);
+                            }
+                        });
+                        
+                        // Close window after printing (optional)
+                        window.addEventListener('afterprint', function() {
+                            // Uncomment the next line if you want to auto-close after printing
+                            window.close();
+                        });
+                    </script>
+                </body>
+                </html>
+            `;
+        const blob = new Blob([printContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+
+        const printWindow = window.open(url, '_blank');
+
+        // Clean up the object URL after the window loads and potentially prints
+        if (printWindow) {
+            printWindow.onload = () => {
+                // Ensure the URL is revoked after the content has been loaded
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            };
+            // Fallback for cases where onload might not fire reliably (e.g., pop-up blockers)
+            printWindow.onbeforeunload = () => {
+                URL.revokeObjectURL(url);
+            };
+        } else {
+            // Handle case where printWindow is null (e.g., blocked by pop-up blocker)
+            alert("Please allow pop-ups for this site to print.");
+            URL.revokeObjectURL(url); // Clean up immediately if window didn't open
         }
 
-        const originalContents = document.body.innerHTML;
-        const printContents = pdfElement.innerHTML; // Get the HTML content of your pdfElement
+        // window.print();
 
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents; // Restore original content
     }
 
     return (
@@ -436,68 +629,65 @@ function App() {
 
                 <input type="file" accept=".docx" onChange={handleFileChange} multiple /> {/* Added 'multiple' */}
                 <button onClick={handleUpload} disabled={!file || file.length === 0}>Upload & Preview</button>
-                {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "auto" }}> */}
-                    {/* <div style={{ width: '50%' }}> */}
-                        {/* <h3>Combined Preview</h3> */}
-                        <div
-                            ref={previewRef}
-                            className="mathjax-preview"
-                            style={{
-                                // border: "1px solid #ccc",
-                                padding: "15px",
-                                minHeight: "200px",
-                                backgroundColor: "#fff",
-                                overflowX: 'auto'
-                            }}
-                        >
-                            <div ref={contentWrapperRef}>
-                                {customList?.length > 0 && customList?.map((ele, index) => {
+                <div style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
+                    <div
+                        ref={previewRef}
+                        className="mathjax-preview"
+                        style={{
+                            // border: "1px solid #ccc",
+                            padding: "15px",
+                            minHeight: "200px",
+                            backgroundColor: "#fff",
+                            overflowX: 'auto'
+                        }}
+                    >
+                        <div ref={contentWrapperRef}>
+                            {customList?.length > 0 && customList?.map((ele, index) => {
 
-                                    if (ele.type === 'question') {
-                                        const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
+                                if (ele.type === 'question') {
+                                    const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
 
-                                        return (
-                                            <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                                                <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${questionNumber}. `}</div>
-                                                <div
-                                                    key={ele.id}
-                                                    data-item-id={ele.id}
-                                                    className="question-content"
-                                                    style={{
-                                                        fontSize: ele.styles.fontSize,
-                                                        backgroundColor: ele.styles.backgroundColor,
-                                                        fontFamily: `${ele.styles.fontFamily}, sans-serif`,
-                                                        flexGrow: 1,
-                                                        // border: "1px solid"
-                                                    }}
-                                                    dangerouslySetInnerHTML={{ __html: ele.rawContent }}
-                                                />
-                                            </div>
-                                        );
-                                    } else {
-                                        return (
+                                    return (
+                                        <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
+                                            <p style={{ marginTop: '16px', whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p>
                                             <div
-                                                style={{ border: '1px dotted black', margin: '10px 0px', overflow: "auto" }}
                                                 key={ele.id}
-                                                className="dynamic-action-p"
-                                                data-action-type="insert-editor"
-                                                data-list-index={index}
-                                                dangerouslySetInnerHTML={{ __html: ele.content }}
+                                                data-item-id={ele.id}
+                                                className="question-content"
+                                                style={{
+                                                    fontSize: ele.styles.fontSize,
+                                                    backgroundColor: ele.styles.backgroundColor,
+                                                    fontFamily: `${ele.styles.fontFamily}, sans-serif`,
+                                                    flexGrow: 1,
+                                                    // border: "1px solid"
+                                                }}
+                                                dangerouslySetInnerHTML={{ __html: ele.rawContent }}
                                             />
-                                        );
-                                    }
-                                })}
-                            </div>
+                                        </div>
+                                    );
+                                } else {
+                                    return (
+                                        <div
+                                            style={{ border: '1px dotted black', margin: '10px 0px', overflow: "auto" }}
+                                            key={ele.id}
+                                            className="dynamic-action-p"
+                                            data-action-type="insert-editor"
+                                            data-list-index={index}
+                                            dangerouslySetInnerHTML={{ __html: ele.content }}
+                                        />
+                                    );
+                                }
+                            })}
                         </div>
-                    {/* </div> */}
+                    </div>
                     {/* PDF preview part */}
-                    <div style={{ background: '#fff', height: "100%", width: "100%" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
+                    <div style={{ background: '#fff', height: "100%", border: "1px solid" }} id="mathjax-preview-pdf" className="mathjax-preview" ref={targetRef}>
                         {customList?.length > 0 && customList?.map((ele, index) => {
                             if (ele.type === 'question') {
                                 const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
                                 return (
                                     <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                                        <div style={{ marginRight: '10px', whiteSpace: "nowrap" }}>{`${questionNumber}. `}</div>
+                                        <p style={{ marginTop: '16px', whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p>
                                         <div
                                             key={ele.id}
                                             data-item-id={ele.id}
@@ -517,7 +707,7 @@ function App() {
                                 // } else if (ele.type === 'editor' && ele.content.includes(`Insert text here`)) {
                                 return (
                                     <div
-                                        style={{ width: "100%", margin: '10px 0px', overflow: "auto" }}
+                                        style={{ margin: '10px 0px', overflow: "auto" }}
                                         key={ele.id}
                                         className="dynamic-action-p"
                                         data-action-type="insert-editor"
@@ -528,7 +718,7 @@ function App() {
                             } return null
                         })}
                     </div>
-                {/* </div> */}
+                </div>
                 <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
                     <div
