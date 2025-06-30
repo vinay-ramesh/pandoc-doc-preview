@@ -659,9 +659,7 @@ function App() {
                 return {
                     ...item,
                     styles: {
-                        fontSize: fontSize,
-                        backgroundColor: backgroundColor,
-                        fontFamily: selectedFont
+                        fontSize: fontSize
                     },
                     is_modified: true
                 };
@@ -685,8 +683,9 @@ function App() {
         } else {
             console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
         }
-        
-    }, [backgroundColor, currentSelectedRootParentTag, customList, fontSize, selectedFont]);
+        // setShowModal(false);
+        // setCurrentSelectedRootParentTag(null);
+    }, [currentSelectedRootParentTag, customList, fontSize]);
 
     return (
         <>

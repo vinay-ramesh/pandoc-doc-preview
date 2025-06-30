@@ -19,7 +19,7 @@ const StyleModal = (props) => {
                 zIndex: 9999,
             }}
         >
-            <h4>Apply Style to Root Parent Tag</h4>
+            <h4>Apply Style</h4>
             <div style={{ marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
                 <label style={{ verticalAlign: "middle" }}>Font Size: {fontSize}</label>
                 {/* <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
