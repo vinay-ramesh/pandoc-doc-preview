@@ -9,7 +9,8 @@ const PDFPreview = (props) => {
                   const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
                   return (
                       <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                          <p style={{ marginTop: '16px', whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p>
+                          <p style={{  whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p>
+                          {/* <p style={{ marginTop: '16px', whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p> */}
                           <div
                               key={ele.id}
                               data-item-id={ele.id}

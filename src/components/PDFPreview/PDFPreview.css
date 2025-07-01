@@ -1,0 +1,22 @@
+.question-item-container {
+    display: flex; /* Makes question number and content side-by-side */
+    align-items: baseline; /* Aligns text baselines */
+    margin-bottom: 20px; /* Space between questions */
+    page-break-inside: avoid; /* Crucial for keeping number and text together */
+}
+
+.question-number-print {
+    /* Reset default paragraph margins */
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0; /* Remove padding if not needed for print */
+    
+    /* Ensure it doesn't wrap and has consistent spacing */
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent the number from shrinking */
+    margin-right: 8px; /* Space between number and text */
+    font-weight: bold;
+    /* Consider a fixed width if numbers go into double/triple digits to prevent jiggling */
+    /* width: 25px; /* Adjust as needed */
+    /* text-align: right; /* If using a fixed width, align right */
+}
