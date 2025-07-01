@@ -541,7 +541,6 @@ function App() {
                             body {
                                 margin: 0;
                                 padding: 20px;
-                                border: 1px solid
                             }
                             
                             .page-break-before { page-break-before: always; }
