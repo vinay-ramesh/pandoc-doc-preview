@@ -856,7 +856,7 @@ function App() {
                     // Close window after printing (optional)
                     window.addEventListener('afterprint', function() {
                         // Uncomment the next line if you want to auto-close after printing
-                        // window.close();
+                        window.close();
                     });
                 </script>
             </body>
