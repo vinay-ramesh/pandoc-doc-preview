@@ -99,3 +99,12 @@ body {
         .question-content td > p {
             display: flex;
         }
+
+        #mathjax-preview-pdf p {
+            padding: 0;
+            margin: 0;
+        }
+
+        #mathjax-preview-pdf .dynamic-action-p {
+            padding: 0;
+        }

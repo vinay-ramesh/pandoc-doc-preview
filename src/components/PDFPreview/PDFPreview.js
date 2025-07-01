@@ -1,3 +1,4 @@
+import "../../App.css"
 
 const PDFPreview = (props) => {
     const { targetRef, customList } = props
@@ -10,7 +11,6 @@ const PDFPreview = (props) => {
                   return (
                       <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
                           <p style={{  whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p>
-                          {/* <p style={{ marginTop: '16px', whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p> */}
                           <div
                               key={ele.id}
                               data-item-id={ele.id}
@@ -20,7 +20,6 @@ const PDFPreview = (props) => {
                                   backgroundColor: ele.styles.backgroundColor,
                                   fontFamily: `${ele.styles.fontFamily}, sans-serif`,
                                   flexGrow: 1,
-                                  // border: "1px solid"
                               }}
                               dangerouslySetInnerHTML={{ __html: ele.rawContent }}
                           />
@@ -29,7 +28,6 @@ const PDFPreview = (props) => {
               } else if (ele.type === 'editor' && ele.is_modified) {
                   return (
                       <div
-                          style={{ margin: '10px 0px' }}
                           key={ele.id}
                           className="dynamic-action-p"
                           data-action-type="insert-editor"

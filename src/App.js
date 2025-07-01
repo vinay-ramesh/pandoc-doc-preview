@@ -404,6 +404,7 @@ function App() {
         }
         .question-content {
             /* Now styles are applied via inline style prop */
+            p: margin:0;
         }
         `}
         </style>
