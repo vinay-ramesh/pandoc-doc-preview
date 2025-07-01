@@ -407,224 +407,6 @@ function App() {
         setCurrentSelectedRootParentTag(null);
     }
 
-    // const handleDownloadPDF = async () => {
-    //     const pdfElement = targetRef.current;
-    //     if (!pdfElement) {
-    //         throw new Error('PDF preview element not found');
-    //     }
-
-    //     // Wait for MathJax to complete if available in the main window
-    //     if (window.MathJax && window.MathJax.typesetPromise) {
-    //         console.log("Waiting for MathJax to typeset in main window...");
-    //         try {
-    //             await window.MathJax.typesetPromise([pdfElement]);
-    //             console.log("MathJax typesetting complete in main window.");
-    //         } catch (error) {
-    //             console.error("MathJax typesetting failed in main window:", error);
-    //             // Continue even if MathJax fails, the inline script in the new window will try again
-    //         }
-    //     }
-    //     const printContent = `
-    //             <!DOCTYPE html>
-    //             <html>
-    //             <head>
-    //             <title>Apps'n'Devices Technologies Pvt Ltd.</title>
-    //                 <meta charset="utf-8">
-    //                 <!-- Include Google Fonts -->
-    //                 ${googleFonts.map(font =>
-    //         `<link href="https://fonts.googleapis.com/css2?family=${font.value}:wght@400;700&display=swap" rel="stylesheet">`
-    //     ).join('\n                ')}
-                    
-    //                 <!-- Include MathJax if needed -->
-    //                 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    //                 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    //                 <script>
-    //                     window.MathJax = {
-    //                         tex: {
-    //                             inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-    //                             displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
-    //                         },
-    //                         options: {
-    //                             skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-    //                         }
-    //                     };
-    //                 </script>
-                    
-    //                 <style>
-    //                     body {
-    //                         font-family: 'Inter', sans-serif;
-    //                         line-height: 1.6;
-    //                         color: #333;
-    //                     }
-                        
-    //                     .mathjax-preview {
-    //                         /* width: 100%; */
-    //                         padding: 15px;
-    //                         min-height: 200px;
-    //                         background-color: #fff;
-    //                         overflow-x: auto;
-    //                         box-sizing: border-box;
-    //                         border: none;
-    //                     }
-    
-    //                     .mathjax-preview table {
-    //                         width: 100%;
-    //                         table-layout: fixed;
-    //                         border-collapse: collapse;
-    //                         margin: 0;
-    //                         overflow-x: auto;
-    //                         display: block;
-    //                         box-sizing: border-box;
-    //                         border: none;
-    //                     }
-                            
-    //                     .mathjax-preview th,
-    //                     .mathjax-preview td {
-    //                         padding: 5px;
-    //                         text-align: left;
-    //                         word-wrap: break-word;
-    //                         overflow-wrap: break-word;
-    //                         box-sizing: border-box;
-    //                         border: none;
-    //                     }
-    
-    //                     .mathjax-preview pre,
-    //                     .mathjax-preview code {
-    //                         white-space: pre-wrap;
-    //                         word-wrap: break-word;
-    //                         overflow-x: auto;
-    //                         background-color: #f5f5f5;
-    //                         padding: 10px;
-    //                         border-radius: 4px;
-    //                         display: block;
-    //                         box-sizing: border-box;
-    //                     }
-    
-    //                     .mathjax-preview p,
-    //                     .mathjax-preview h1,
-    //                     .mathjax-preview h2,
-    //                     .mathjax-preview h3,
-    //                     .mathjax-preview h4,
-    //                     .mathjax-preview h5,
-    //                     .mathjax-preview h6,
-    //                     .mathjax-preview li {
-    //                         word-wrap: break-word;
-    //                         overflow-wrap: break-word;
-    //                         border: none;
-    //                         /* padding:0;
-    //                         margin:0 */
-    //                     }
-                        
-    //                     .mjx-chtml {
-    //                         word-wrap: normal;
-    //                         overflow-x: auto;
-    //                         display: block;
-    //                         border: none;
-    //                         min-height: 1em;
-    //                         line-height: 1.2;
-    //                     }
-                        
-    //                     .question-content {
-    //                         page-break-inside: avoid;
-    //                     }
-
-    //                     .question-content td > math[display="block"] {
-    //                         display: flex;
-    //                     }
-
-    //                     .question-content td > p {
-    //                         display: flex;
-    //                     }
-
-    //                     /* Print styles */
-    //                     @media print {
-    //                         * {
-    //                         overflow: hidden;
-    //                         }
-    //                         body {
-    //                             margin: 0;
-    //                             padding: 20px;
-    //                         }
-                            
-    //                         .page-break-before { page-break-before: always; }
-    //                         .page-break-after { page-break-after: always; }
-    //                         .no-page-break { page-break-inside: avoid; }
-
-    //                         .question-content {
-    //                             page-break-inside: avoid;
-    //                             margin-bottom: 20px;
-    //                         }
-
-    //                         .question-content td > math[display="block"] {
-    //                             display: flex;
-    //                         }
-                            
-    //                         .question-content td > p {
-    //                             display: flex;
-    //                         }
-
-    //                         .mjx-chtml {
-    //                             page-break-inside: avoid;
-    //                             -webkit-print-color-adjust: exact;
-    //                             color-adjust: exact;
-    //                         }
-    //                     }
-    //                 </style>
-    //             </head>
-    //             <body>
-    //                 <div class="mathjax-preview">
-    //                     ${pdfElement.innerHTML}
-    //                 </div>
-                    
-    //                 <script>
-    //                     // Wait for content to load and MathJax to render, then trigger print
-    //                     window.addEventListener('load', function() {
-    //                         // If MathJax is available, wait for it to finish rendering
-    //                         if (window.MathJax && window.MathJax.startup) {
-    //                             window.MathJax.startup.promise.then(function() {
-    //                                 setTimeout(function() {
-    //                                     window.print();
-    //                                 }, 500);
-    //                             });
-    //                         } else {
-    //                             // If no MathJax, just wait a bit for fonts to load
-    //                             setTimeout(function() {
-    //                                 window.print();
-    //                             }, 1000);
-    //                         }
-    //                     });
-                        
-    //                     // Close window after printing (optional)
-    //                     window.addEventListener('afterprint', function() {
-    //                         // Uncomment the next line if you want to auto-close after printing
-    //                         // window.close();
-    //                     });
-    //                 </script>
-    //             </body>
-    //             </html>
-    //         `;
-    //     const blob = new Blob([printContent], { type: 'text/html' });
-    //     const url = URL.createObjectURL(blob);
-
-    //     const printWindow = window.open(url, '_blank');
-
-    //     // Clean up the object URL after the window loads and potentially prints
-    //     if (printWindow) {
-    //         printWindow.onload = () => {
-    //             // Ensure the URL is revoked after the content has been loaded
-    //             setTimeout(() => URL.revokeObjectURL(url), 100);
-    //         };
-    //         // Fallback for cases where onload might not fire reliably (e.g., pop-up blockers)
-    //         printWindow.onbeforeunload = () => {
-    //             URL.revokeObjectURL(url);
-    //         };
-    //     } else {
-    //         // Handle case where printWindow is null (e.g., blocked by pop-up blocker)
-    //         alert("Please allow pop-ups for this site to print.");
-    //         URL.revokeObjectURL(url); // Clean up immediately if window didn't open
-    //     }
-    // }
-
     const handleDownloadPDF = async () => {
         const pdfElement = targetRef.current;
         if (!pdfElement) {
@@ -635,7 +417,6 @@ function App() {
         if (window.MathJax && window.MathJax.typesetPromise) {
             console.log("Waiting for MathJax to typeset in main window...");
             try {
-                // It's good to await MathJax typesetting on the element before capturing its innerHTML
                 await window.MathJax.typesetPromise([pdfElement]);
                 console.log("MathJax typesetting complete in main window.");
             } catch (error) {
@@ -643,225 +424,185 @@ function App() {
                 // Continue even if MathJax fails, the inline script in the new window will try again
             }
         }
-
         const printContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
+                <!DOCTYPE html>
+                <html>
+                <head>
                 <title>Apps'n'Devices Technologies Pvt Ltd.</title>
-                <meta charset="utf-8">
-                ${googleFonts.map(font =>
+                    <meta charset="utf-8">
+                    <!-- Include Google Fonts -->
+                    ${googleFonts.map(font =>
             `<link href="https://fonts.googleapis.com/css2?family=${font.value}:wght@400;700&display=swap" rel="stylesheet">`
-        ).join('\n')}
-                
-                <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-                <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-                <script>
-                    window.MathJax = {
-                        tex: {
-                            inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-                            displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
-                        },
-                        options: {
-                            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-                        }
-                    };
-                </script>
-                
-                <style>
-                    body {
-                        font-family: 'Inter', sans-serif;
-                        line-height: 1.6;
-                        color: #333;
-                        margin: 0; /* Reset body margin for print */
-                        padding: 20px; /* Add desired padding for the printed page */
-                        box-sizing: border-box; /* Include padding in element's total width and height */
-                    }
+        ).join('\n                ')}
                     
-                    .mathjax-preview {
-                        /* This class is on the outer container in the print window */
-                        padding: 0; /* Let print styles manage overall page padding */
-                        min-height: auto; /* No fixed min-height for print */
-                        background-color: #fff;
-                        overflow-x: hidden; /* Prevent horizontal scrollbar on print */
-                        box-sizing: border-box;
-                        border: none;
-                    }
-    
-                    .mathjax-preview table {
-                        width: 100%;
-                        table-layout: fixed;
-                        border-collapse: collapse;
-                        margin: 0;
-                        overflow-x: auto; /* Allow tables to scroll if very wide */
-                        display: block;
-                        box-sizing: border-box;
-                        border: none;
-                    }
-                                    
-                    .mathjax-preview th,
-                    .mathjax-preview td {
-                        padding: 5px;
-                        text-align: left;
-                        word-wrap: break-word;
-                        overflow-wrap: break-word;
-                        box-sizing: border-box;
-                        border: none;
-                    }
-            
-                    .mathjax-preview pre,
-                    .mathjax-preview code {
-                        white-space: pre-wrap;
-                        word-wrap: break-word;
-                        overflow-x: auto;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        border-radius: 4px;
-                        display: block;
-                        box-sizing: border-box;
-                    }
-            
-                    /* IMPORTANT: Reset default margins/paddings for elements within mathjax-preview
-                       to ensure consistent spacing controlled by your flex layout. */
-                    .mathjax-preview p,
-                    .mathjax-preview h1,
-                    .mathjax-preview h2,
-                    .mathjax-preview h3,
-                    .mathjax-preview h4,
-                    .mathjax-preview h5,
-                    .mathjax-preview h6,
-                    .mathjax-preview ul, /* Add lists if they appear */
-                    .mathjax-preview ol,
-                    .mathjax-preview li {
-                        margin: 0;
-                        padding: 0;
-                        word-wrap: break-word;
-                        overflow-wrap: break-word;
-                        border: none;
-                    }
+                    <!-- Include MathJax if needed -->
+                    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+                    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+                    <script>
+                        window.MathJax = {
+                            tex: {
+                                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+                                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+                            },
+                            options: {
+                                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                            }
+                        };
+                    </script>
                     
-                    .mjx-chtml {
-                        word-wrap: normal; /* Let MathJax manage its own internal wrapping */
-                        overflow-x: auto; /* Allow math overflow if too wide */
-                        display: block;
-                        border: none;
-                        min-height: 1em;
-                        line-height: 1.2;
-                        page-break-inside: avoid; /* Try to keep complex equations together */
-                        -webkit-print-color-adjust: exact; /* Ensure colors are printed */
-                        color-adjust: exact;
-                    }
-                    
-                    /* Styles for the question item container */
-                    .question-item-container {
-                        display: flex; /* Use flexbox for robust alignment of number and text */
-                        align-items: baseline; /* Align question number and text at their text baseline */
-                        margin-bottom: 15px; /* Add some space between questions */
-                        page-break-inside: avoid; /* Keep question number and text together on the same page */
-                    }
-    
-                    /* Styles for the question number */
-                    .question-number-print {
-                        margin-top: 0 !important; /* Force override any inline margin-top */
-                        margin-bottom: 0 !important; /* Ensure no bottom margin */
-                        padding: 0 8px 0 0 !important; /* Adjust padding: right padding for spacing from text */
-                        white-space: nowrap; /* Prevent question number from wrapping */
-                        flex-shrink: 0; /* Prevent the number from shrinking */
-                        font-weight: bold; /* Make the number stand out */
-                        line-height: inherit; /* Inherit line height for better vertical alignment */
-                        /* Optional: Set a fixed width if numbers might vary significantly (e.g., 1-9 vs 100+) */
-                        /* width: 25px; */ 
-                        /* text-align: right; */
-                    }
-    
-                    /* Styles for the main question content */
-                    .question-content {
-                        flex-grow: 1; /* Allow the content to take up remaining space */
-                        page-break-inside: auto; /* Allow browser to break inside the question content,
-                                                    but the parent .question-item-container avoids breaking the whole question */
-                        word-wrap: break-word;
-                        overflow-wrap: break-word;
-                        margin: 0; /* Reset margins */
-                        padding: 0; /* Reset padding */
-                    }
-    
-                    /* Specific for MathJax display block within table cells or directly */
-                    .question-content td > math[display="block"],
-                    .question-content math[display="block"] {
-                        display: flex; /* Helps ensure block math is properly rendered */
-                        align-items: baseline; /* Align the MathJax block with the baseline of the cell/div content */
-                    }
-                    
-                    /* This seems to be a misconfiguration in your original, MathJax handles p within td */
-                    .question-content td > p {
-                        display: flex; 
-                    }
-    
-                    /* Print styles */
-                    @media print {
-                        * {
-                            /* This is very aggressive and might hide legitimate overflows. 
-                               It's generally better to target specific elements that cause issues. */
-                            /* overflow: hidden; */ 
-                        }
+                    <style>
                         body {
-                            margin: 0;
-                            padding: 20px;
+                            font-family: 'Inter', sans-serif;
+                            line-height: 1.6;
+                            color: #333;
                         }
                         
-                        .page-break-before { page-break-before: always; }
-                        .page-break-after { page-break-after: always; }
-                        .no-page-break { page-break-inside: avoid; }
-    
-                        .question-item-container {
-                            page-break-inside: avoid; /* Keep number and content together */
-                            margin-bottom: 20px; /* Space between questions on print */
+                        .mathjax-preview {
+                            /* width: 100%; */
+                            padding: 15px;
+                            min-height: 200px;
+                            background-color: #fff;
+                            overflow-x: auto;
+                            box-sizing: border-box;
+                            border: none;
                         }
     
-                        /* No need to re-declare these if they are already defined for general use above */
-                        /* .question-content td > math[display="block"] {
+                        .mathjax-preview table {
+                            width: 100%;
+                            table-layout: fixed;
+                            border-collapse: collapse;
+                            margin: 0;
+                            overflow-x: auto;
+                            display: block;
+                            box-sizing: border-box;
+                            border: none;
+                        }
+                            
+                        .mathjax-preview th,
+                        .mathjax-preview td {
+                            padding: 5px;
+                            text-align: left;
+                            word-wrap: break-word;
+                            overflow-wrap: break-word;
+                            box-sizing: border-box;
+                            border: none;
+                        }
+    
+                        .mathjax-preview pre,
+                        .mathjax-preview code {
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            overflow-x: auto;
+                            background-color: #f5f5f5;
+                            padding: 10px;
+                            border-radius: 4px;
+                            display: block;
+                            box-sizing: border-box;
+                        }
+    
+                        .mathjax-preview p,
+                        .mathjax-preview h1,
+                        .mathjax-preview h2,
+                        .mathjax-preview h3,
+                        .mathjax-preview h4,
+                        .mathjax-preview h5,
+                        .mathjax-preview h6,
+                        .mathjax-preview li {
+                            word-wrap: break-word;
+                            overflow-wrap: break-word;
+                            border: none;
+                            /* padding:0;
+                            margin:0 */
+                        }
+                        
+                        .mjx-chtml {
+                            word-wrap: normal;
+                            overflow-x: auto;
+                            display: block;
+                            border: none;
+                            min-height: 1em;
+                            line-height: 1.2;
+                        }
+                        
+                        .question-content {
+                            page-break-inside: avoid;
+                        }
+
+                        .question-content td > math[display="block"] {
                             display: flex;
                         }
-                        .mjx-chtml {
-                            page-break-inside: avoid;
-                            -webkit-print-color-adjust: exact;
-                            color-adjust: exact;
-                        } */
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="mathjax-preview">
-                    ${pdfElement.innerHTML}
-                </div>
-                
-                <script>
-                    // Wait for content to load and MathJax to render, then trigger print
-                    window.addEventListener('load', function() {
-                        // If MathJax is available, wait for it to finish rendering
-                        if (window.MathJax && window.MathJax.startup) {
-                            window.MathJax.startup.promise.then(function() {
+
+                        .question-content td > p {
+                            display: flex;
+                        }
+
+                        /* Print styles */
+                        @media print {
+                            * {
+                            overflow: hidden;
+                            }
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                            }
+                            
+                            .page-break-before { page-break-before: always; }
+                            .page-break-after { page-break-after: always; }
+                            .no-page-break { page-break-inside: avoid; }
+
+                            .question-content {
+                                page-break-inside: avoid;
+                                margin-bottom: 20px;
+                            }
+
+                            .question-content td > math[display="block"] {
+                                display: flex;
+                            }
+                            
+                            .question-content td > p {
+                                display: flex;
+                            }
+
+                            .mjx-chtml {
+                                page-break-inside: avoid;
+                                -webkit-print-color-adjust: exact;
+                                color-adjust: exact;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="mathjax-preview">
+                        ${pdfElement.innerHTML}
+                    </div>
+                    
+                    <script>
+                        // Wait for content to load and MathJax to render, then trigger print
+                        window.addEventListener('load', function() {
+                            // If MathJax is available, wait for it to finish rendering
+                            if (window.MathJax && window.MathJax.startup) {
+                                window.MathJax.startup.promise.then(function() {
+                                    setTimeout(function() {
+                                        window.print();
+                                    }, 500);
+                                });
+                            } else {
+                                // If no MathJax, just wait a bit for fonts to load
                                 setTimeout(function() {
                                     window.print();
-                                }, 500); // Give a bit more time for fonts/rendering if needed
-                            });
-                        } else {
-                            // If no MathJax, just wait a bit for fonts to load
-                            setTimeout(function() {
-                                window.print();
-                            }, 1000); // Increased timeout for safety
-                        }
-                    });
-                    
-                    // Close window after printing (optional)
-                    window.addEventListener('afterprint', function() {
-                        // Uncomment the next line if you want to auto-close after printing
-                        window.close();
-                    });
-                </script>
-            </body>
-            </html>
-        `;
+                                }, 1000);
+                            }
+                        });
+                        
+                        // Close window after printing (optional)
+                        window.addEventListener('afterprint', function() {
+                            // Uncomment the next line if you want to auto-close after printing
+                            // window.close();
+                        });
+                    </script>
+                </body>
+                </html>
+            `;
         const blob = new Blob([printContent], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
 
@@ -882,7 +623,7 @@ function App() {
             alert("Please allow pop-ups for this site to print.");
             URL.revokeObjectURL(url); // Clean up immediately if window didn't open
         }
-    };
+    }
 
     const handleFontSize = useCallback((type) => {
         const currentValue = Number(fontSize.slice(0, -2));
