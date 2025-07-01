@@ -453,7 +453,6 @@ function App() {
                     <style>
                         body {
                             font-family: 'Inter', sans-serif;
-                            /* margin: 20px; */
                             line-height: 1.6;
                             color: #333;
                         }
@@ -533,6 +532,10 @@ function App() {
                             display: flex;
                         }
 
+                        .question-content td > p {
+                            display: flex;
+                        }
+
                         /* Print styles */
                         @media print {
                             * {
@@ -553,6 +556,10 @@ function App() {
                             }
 
                             .question-content td > math[display="block"] {
+                                display: flex;
+                            }
+                            
+                            .question-content td > p {
                                 display: flex;
                             }
 
@@ -590,7 +597,7 @@ function App() {
                         // Close window after printing (optional)
                         window.addEventListener('afterprint', function() {
                             // Uncomment the next line if you want to auto-close after printing
-                            window.close();
+                            // window.close();
                         });
                     </script>
                 </body>
@@ -616,9 +623,6 @@ function App() {
             alert("Please allow pop-ups for this site to print.");
             URL.revokeObjectURL(url); // Clean up immediately if window didn't open
         }
-
-        // window.print();
-
     }
 
     const handleFontSize = useCallback((type) => {
@@ -732,7 +736,7 @@ function App() {
                                 } else {
                                     return (
                                         <div
-                                            style={{ border: '1px dotted black', margin: '10px 0px', overflow: "auto" }}
+                                            style={{ border: '1px dotted black', margin: '10px 0px' }}
                                             key={ele.id}
                                             className="dynamic-action-p"
                                             data-action-type="insert-editor"

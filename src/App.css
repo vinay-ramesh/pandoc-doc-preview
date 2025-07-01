@@ -96,3 +96,6 @@ body {
         .question-content td > math[display="block"] {
             display: flex;
         }
+        .question-content td > p {
+            display: flex;
+        }

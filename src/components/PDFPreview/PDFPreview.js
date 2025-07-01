@@ -28,7 +28,7 @@ const PDFPreview = (props) => {
               } else if (ele.type === 'editor' && ele.is_modified) {
                   return (
                       <div
-                          style={{ margin: '10px 0px', overflow: "auto" }}
+                          style={{ margin: '10px 0px' }}
                           key={ele.id}
                           className="dynamic-action-p"
                           data-action-type="insert-editor"
