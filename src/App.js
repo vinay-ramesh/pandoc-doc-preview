@@ -472,7 +472,7 @@ function App() {
               backgroundColor: "#fff",
               padding: "20px",
               border: "1px solid #ccc",
-              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+              boxShadow: "0 0 22px rgba(0,0,0,8.2)",
               zIndex: 9999,
             }}
           >

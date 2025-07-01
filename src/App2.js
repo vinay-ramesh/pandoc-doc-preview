@@ -30,7 +30,7 @@ function App() {
 
     // Modal related states
     const [showModal, setShowModal] = useState(false);
-    const [fontSize, setFontSize] = useState("16px"); // Controls modal input
+    const [fontSize, setFontSize] = useState("34px"); // Controls modal input
     const [backgroundColor, setBackgroundColor] = useState(""); // Controls modal input
     const modalRef = useRef(null);
 
