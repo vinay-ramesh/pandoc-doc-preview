@@ -340,7 +340,7 @@ function App() {
 
     const updatedEditorContent = useCallback((updatedContent) => {
         const contentToReplace = updatedContent.replace(/<\/?p>/g, "")
-
+        console.log("content", contentToReplace)
         const isContentEmptyAdvanced = (htmlContent) => {
             return htmlContent
                 .replace(/&nbsp;/g, '')
@@ -569,7 +569,6 @@ function App() {
                             body {
                                 margin: 0;
                                 padding: 20px;
-                                border: 1px solid
                             }
                             
                             .page-break-before { page-break-before: always; }
@@ -619,7 +618,7 @@ function App() {
                         // Close window after printing (optional)
                         window.addEventListener('afterprint', function() {
                             // Uncomment the next line if you want to auto-close after printing
-                            window.close();
+                            // window.close();
                         });
                     </script>
                 </body>

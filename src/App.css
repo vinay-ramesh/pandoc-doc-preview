@@ -105,6 +105,6 @@ body {
             margin: 0;
         }
 
-        #mathjax-preview-pdf .dynamic-action-p {
+        #mathjax-preview-pdf .dynamic-action-p p{
             padding: 0;
         }
