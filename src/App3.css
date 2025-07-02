@@ -1,0 +1,215 @@
+/* App.css */
+
+/* Base body styles */
+body {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    font-family: 'Inter', sans-serif; /* Default font for the body */
+    line-height: 1.6;
+    color: #333;
+  }
+  
+  /* Jodit Editor styles (if you are using Jodit) */
+  .jodit-container:not(.jodit_inline) .jodit-wysiwyg {
+      margin: 0;
+      outline: 0;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding: 8px;
+      position: relative;
+  }
+  
+  /* Main preview area container */
+  .mathjax-preview {
+      width: 100%;
+      border: 1px solid #ccc; /* Moved from inline style in App.js */
+      padding: 15px; /* Moved from inline style in App.js */
+      min-height: 200px; /* Moved from inline style in App.js */
+      background-color: #fff; /* Moved from inline style in App.js */
+      overflow-x: hidden; /* Prevent horizontal scrollbar on main preview */
+      box-sizing: border-box;
+      /* border: none; - This was in your old CSS but seems to conflict with the new border above. Removed for clarity. */
+  }
+  
+  /* Table styles within the preview */
+  .mathjax-preview table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      margin: 0;
+      overflow-x: auto;
+      display: block;
+      box-sizing: border-box;
+      border: none;
+  }
+  
+  .mathjax-preview th,
+  .mathjax-preview td {
+      padding: 5px;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+      border: none;
+  }
+  
+  /* Preformatted text and code blocks */
+  .mathjax-preview pre,
+  .mathjax-preview code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      display: block;
+      box-sizing: border-box;
+  }
+  
+  /* Reset margins/paddings for common text elements within preview */
+  .mathjax-preview p,
+  .mathjax-preview h1,
+  .mathjax-preview h2,
+  .mathjax-preview h3,
+  .mathjax-preview h4,
+  .mathjax-preview h5,
+  .mathjax-preview h6,
+  .mathjax-preview ul,
+  .mathjax-preview ol,
+  .mathjax-preview li {
+      margin: 0;
+      padding: 0;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      border: none;
+  }
+  
+  /* MathJax output elements */
+  .mjx-chtml {
+      word-wrap: normal;
+      overflow-x: auto;
+      display: block;
+      border: none;
+      min-height: 1em; /* Ensure some height for empty math blocks */
+      line-height: 1.2; /* Better line height for math */
+  }
+  
+  /* --- Image Resizing Rules --- */
+  .question-content img {
+      max-width: 100%; /* Ensures image doesn't overflow its parent width */
+      height: auto;    /* Maintains aspect ratio as width changes */
+      display: block;  /* Helps prevent extra space below images and treats them as block-level elements */
+      box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+  }
+  
+  /* This rule is for images that might have inline 'style' attributes with fixed width/height.
+     It overrides the inline height to ensure aspect ratio is maintained. */
+  .question-content img[style] {
+      height: auto !important; /* Force auto height even if an inline 'height' style exists */
+  }
+  /* --- End Image Resizing Rules --- */
+  
+  
+  /* Container for a single question item (number + content) */
+  .question-item-container {
+      display: flex;
+      align-items: flex-start; /* Align number and content at the top */
+      margin-bottom: 15px; /* Space between question items */
+  }
+  
+  /* Styles for the question number */
+  .question-number {
+      margin-top: 0; /* Override default p tag margin */
+      margin-bottom: 0; /* Override default p tag margin */
+      padding: 5px; /* Adjust padding around the number */
+      white-space: nowrap; /* Prevent question number from wrapping */
+      flex-shrink: 0; /* Prevent the number from shrinking */
+      font-weight: bold;
+      line-height: inherit; /* Inherit line-height from parent */
+  }
+  
+  /* Styles for the main question content div that holds the raw HTML */
+  .question-content {
+      flex-grow: 1; /* Allows the content to take up remaining space */
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      margin: 0; /* Reset margins */
+      padding: 0; /* Reset padding */
+      /* Font size, background color, and font family will be applied inline from state */
+  }
+  
+  /* Styles for the "Insert text here" editor slots */
+  .dynamic-editor-slot {
+      border: 1px dotted black; /* Moved from inline style in App.js */
+      margin: 10px 0px; /* Moved from inline style in App.js */
+      padding: 5px; /* Added some padding for better appearance */
+  }
+  
+  /* Specific MathJax display adjustments within table cells */
+  .question-content td > math[display="block"],
+  .question-content math[display="block"] {
+      display: flex;
+      align-items: baseline;
+  }
+  
+  /* This rule for td > p seems generally problematic with MathJax,
+     but keeping it if it's explicitly needed for some reason in your content. */
+  .question-content td > p {
+      display: flex;
+  }
+  
+  /* Styles specifically for the PDF preview (if #mathjax-preview-pdf is used) */
+  #mathjax-preview-pdf p {
+      padding: 0;
+      margin: 0;
+  }
+  
+  #mathjax-preview-pdf .dynamic-action-p {
+      padding: 0;
+  }
+  
+  /* Print-specific styles */
+  @media print {
+      body {
+          margin: 0;
+          padding: 20px; /* Add desired padding for the printed page */
+      }
+  
+      /* Page break control */
+      .page-break-before { page-break-before: always; }
+      .page-break-after { page-break-after: always; }
+      .no-page-break { page-break-inside: avoid; }
+  
+      .question-item-container {
+          page-break-inside: avoid; /* Keep question number and text together on the same page */
+          margin-bottom: 20px; /* Space between questions on print */
+      }
+  
+      .question-number-print { /* This class is used in the PDF print string */
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding: 0 8px 0 0 !important;
+          white-space: nowrap;
+          flex-shrink: 0;
+          font-weight: bold;
+          line-height: inherit;
+      }
+  
+      /* Ensure images scale correctly in print */
+      .question-content img {
+          max-width: 100%;
+          height: auto;
+          -webkit-print-color-adjust: exact; /* Important for preserving colors/details in print */
+          color-adjust: exact;
+      }
+  
+      .mjx-chtml {
+          page-break-inside: avoid; /* Try to keep complex equations together in print */
+          -webkit-print-color-adjust: exact;
+          color-adjust: exact;
+      }
+  
+      /* You can add more specific print adjustments here if needed */
+  }

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import "./App.css";
-import { dummyResponse } from "./dummyResponse"
+// import "./App.css"; // Ensure you import your CSS file
+import "./App3.css"; // Ensure you import your CSS file
 import axios from "axios";
 import EditorModal from "./components/EditorModal/EditorModal";
-import { usePDF } from 'react-to-pdf';
 import StyleModal from "./components/StyleModal/StyleModal";
 import PDFPreview from "./components/PDFPreview/PDFPreview";
 
@@ -22,34 +21,31 @@ const googleFonts = [
 
 function App() {
     const [customList, setCustomList] = useState([])
-    const [serverRes, setServerRes] = useState(dummyResponse)
     const [selectedIndex, setSelectedIndex] = useState('')
     const [file, setFile] = useState('')
-    // const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
     const targetRef = useRef(null)
 
     // Modal related states
     const [showModal, setShowModal] = useState(false);
-    const [fontSize, setFontSize] = useState("16px"); // Controls modal input
-    const [backgroundColor, setBackgroundColor] = useState(""); // Controls modal input
+    const [fontSize, setFontSize] = useState("16px"); // Default to 16px as per your reset logic
+    const [backgroundColor, setBackgroundColor] = useState("");
     const modalRef = useRef(null);
 
     // Selection related states
     const previewRef = useRef(null);
-    const editorContentRef = useRef(null);
+    const editorContentRef = useRef(null); // Ref for general editor content
     const contentWrapperRef = useRef(null); // Single ref for all dynamic content
-    // currentSelectedRootParentTag will now refer to the actual DOM node whose styles we want to read/apply
     const [currentSelectedRootParentTag, setCurrentSelectedRootParentTag] = useState(null);
     const [selectionTimeoutId, setSelectionTimeoutId] = useState(null);
-    const [selectedFont, setSelectedFont] = useState('Inter'); // Controls modal input
+    const [selectedFont, setSelectedFont] = useState('Inter');
 
     const [openModal, setOpenModal] = useState(false)
 
     const handleOpenCloseModal = useCallback(() => {
-        setOpenModal(!openModal)
-    }, [openModal])
+        setOpenModal(prev => !prev) // Use functional update for consistent state toggling
+    }, []); // No dependencies needed for a simple toggle
 
-    // Font updation (no change)
+    // Font updation (no change, good as is)
     useEffect(() => {
         const loadFont = (fontFamily) => {
             const link = document.createElement('link');
@@ -81,7 +77,6 @@ function App() {
             if (!selection || selection.isCollapsed || !previewRef.current) {
                 setShowModal(false);
                 setCurrentSelectedRootParentTag(null);
-                // Reset modal inputs when selection is cleared or invalid
                 setFontSize("16px");
                 setBackgroundColor("");
                 setSelectedFont("Inter");
@@ -98,7 +93,6 @@ function App() {
                 return;
             }
 
-            // If selection is within the general editor content area
             if (editorContentRef.current && editorContentRef.current.contains(range.commonAncestorContainer)) {
                 setShowModal(false);
                 setCurrentSelectedRootParentTag(null);
@@ -108,24 +102,21 @@ function App() {
                 return;
             }
 
-            // If selection is within the dynamic content (customList) area
             if (contentWrapperRef.current && contentWrapperRef.current.contains(range.commonAncestorContainer)) {
                 let currentElement = range.commonAncestorContainer;
                 let rootParentTag = null;
-                let selectedDataItemId = null; // Store the ID from data-item-id
+                let selectedDataItemId = null;
 
-                // Traverse up to find the direct child of contentWrapperRef that contains the selection
                 while (currentElement && currentElement !== contentWrapperRef.current) {
                     if (currentElement.parentElement === contentWrapperRef.current) {
                         rootParentTag = currentElement;
-                        selectedDataItemId = rootParentTag.dataset.itemId; // Get the unique ID
+                        selectedDataItemId = rootParentTag.dataset.itemId;
                         break;
                     }
                     currentElement = currentElement.parentElement;
                 }
 
                 if (rootParentTag && selectedDataItemId) {
-                    // If the selected element is an "Insert text here" button, don't show the styling modal
                     if (rootParentTag.classList.contains('dynamic-action-p')) {
                         setShowModal(false);
                         setCurrentSelectedRootParentTag(null);
@@ -136,23 +127,20 @@ function App() {
                     }
 
                     console.log("Selected dynamic content. Root parent:", rootParentTag.tagName, "ID:", selectedDataItemId);
-                    setCurrentSelectedRootParentTag(rootParentTag); // Still store the DOM node for context if needed
+                    setCurrentSelectedRootParentTag(rootParentTag);
 
-                    // Find the corresponding item in customList by its ID and set modal inputs
                     const selectedItem = customList.find(item => item.id === selectedDataItemId);
                     if (selectedItem && selectedItem.styles) {
-                        console.log("selectedItem.styles.fontSize", selectedItem.styles.fontSize)
-                        setFontSize(selectedItem.styles.fontSize);
-                        setBackgroundColor(selectedItem.styles.backgroundColor);
-                        setSelectedFont(selectedItem.styles.fontFamily);
+                        console.log("selectedItem.styles.fontSize", selectedItem.styles.fontSize);
+                        setFontSize(selectedItem.styles.fontSize || "16px");
+                        setBackgroundColor(selectedItem.styles.backgroundColor || "");
+                        setSelectedFont(selectedItem.styles.fontFamily || "Inter");
                     } else {
-                        // Default styles if no specific styles found for the selected item
                         setFontSize("16px");
                         setBackgroundColor("");
                         setSelectedFont("Inter");
                     }
 
-                    // Set timeout to show the modal after 3 seconds
                     const id = setTimeout(() => {
                         setShowModal(true);
                     }, 1000);
@@ -186,10 +174,10 @@ function App() {
                 clearTimeout(selectionTimeoutId);
             }
         };
-    }, [selectionTimeoutId, customList]); // Added customList to dependencies
+    }, [selectionTimeoutId, customList, previewRef, editorContentRef, contentWrapperRef, modalRef]);
 
     // Apply style to the selected element's corresponding item in customList state
-    const applyStyleToSelectedElement = () => {
+    const applyStyleToSelectedElement = useCallback(() => {
         if (!currentSelectedRootParentTag) {
             console.warn("No element selected to apply styles.");
             setShowModal(false);
@@ -203,10 +191,8 @@ function App() {
             return;
         }
 
-        // Map over customList to find the item by its 'id' and update its 'styles' object
         const updatedCustomList = customList.map(item => {
             if (item.id === selectedItemId) {
-                // Return a new object for immutability, updating only the 'styles'
                 return {
                     ...item,
                     styles: {
@@ -220,9 +206,8 @@ function App() {
             return item;
         });
 
-        setCustomList(updatedCustomList); // This re-renders the component with new styles
+        setCustomList(updatedCustomList);
 
-        // Re-typeset MathJax, as font changes can affect its rendering dimensions
         if (window.MathJax && window.MathJax.typesetPromise) {
             setTimeout(() => {
                 window.MathJax.typesetPromise([contentWrapperRef.current])
@@ -238,7 +223,8 @@ function App() {
         }
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
-    };
+    }, [currentSelectedRootParentTag, customList, fontSize, backgroundColor, selectedFont]);
+
 
     const handleUpload = async () => {
         if (!file || file.length === 0) {
@@ -248,7 +234,7 @@ function App() {
 
         const formData = new FormData();
         for (let i = 0; i < file.length; i++) {
-            formData.append("files", file[i]); // Ensure "files" (plural) matches server config
+            formData.append("files", file[i]);
         }
 
         try {
@@ -275,7 +261,7 @@ function App() {
                         is_modified: false,
                         id: uniqueId,
                         styles: {
-                            fontSize: "16px",
+                            fontSize: "16px", // Default font size on upload
                             backgroundColor: "",
                             fontFamily: "Inter"
                         }
@@ -285,7 +271,7 @@ function App() {
                         type: 'editor',
                         content: `<p data-action-type="insert-editor" data-list-index="${editorIndexInList}">Insert text here</p>`,
                         is_modified: false,
-                        id: `editor-<span class="math-inline">${i}</span>{Date.now()}`
+                        id: `editor-${i}-${Date.now()}` // Fixed template literal for ID
                     });
                 }
 
@@ -307,7 +293,7 @@ function App() {
                     type: "editor",
                     content: '<p>No contents to display</p>',
                     is_modified: false,
-                    id: "editor-initial" // Unique ID for general editor slot
+                    id: "editor-initial"
                 });
                 setCustomList(result);
             }
@@ -322,7 +308,7 @@ function App() {
                 type: "editor",
                 content: `<p style="color: red;">Error: ${err.response ? err.response.data.error : err.message}</p>`,
                 is_modified: false,
-                id: "editor-initial" // Unique ID for general editor slot
+                id: "editor-initial"
             });
             setCustomList(result);
         }
@@ -340,22 +326,17 @@ function App() {
 
     const updatedEditorContent = useCallback((updatedContent) => {
         const contentToReplace = updatedContent.replace(/<\/?p>/g, "")
-        console.log("contentToReplace", contentToReplace)
-        if (contentToReplace && contentToReplace !== "Insert text here") {
-            setCustomList((prevState) => {
-                const newList = [...prevState]
-                if (newList[selectedIndex]) {
-                    newList[selectedIndex] = {
-                        ...newList[selectedIndex],
-                        // content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index=${selectedIndex}>${contentToReplace}</p>`,
-                        content: `<p>${contentToReplace}</p>`,
-                        // content: `<p>${contentToReplace ? contentToReplace : "Insert text here"}</p>`,
-                        is_modified: true
-                    }
+        setCustomList((prevState) => {
+            const newList = [...prevState]
+            if (newList[selectedIndex]) {
+                newList[selectedIndex] = {
+                    ...newList[selectedIndex],
+                    content: `<p>${contentToReplace}</p>`, // Ensure paragraph tags are re-added if stripped by editor
+                    is_modified: true
                 }
-                return newList;
-            })
-        }
+            }
+            return newList;
+        })
     }, [selectedIndex])
 
     useEffect(() => {
@@ -371,10 +352,10 @@ function App() {
     console.log("customList", customList)
 
     const handleFileChange = (e) => {
-        setFile(e.target.files); // Store FileList for multiple files
+        setFile(e.target.files);
     };
 
-    const handleResetStyle = () => {
+    const handleResetStyle = useCallback(() => {
         if (!currentSelectedRootParentTag) {
             console.warn("No element selected to apply styles.");
             setShowModal(false);
@@ -388,14 +369,12 @@ function App() {
             return;
         }
 
-        // Map over customList to find the item by its 'id' and update its 'styles' object
         const updatedCustomList = customList.map(item => {
             if (item.id === selectedItemId) {
-                // Return a new object for immutability, updating only the 'styles'
                 return {
                     ...item,
                     styles: {
-                        fontSize: '16px',
+                        fontSize: '16px', // Reset to default
                         backgroundColor: '',
                         fontFamily: 'Inter'
                     },
@@ -405,11 +384,16 @@ function App() {
             return item;
         });
 
-        setCustomList(updatedCustomList); // This re-renders the component with new styles
+        setCustomList(updatedCustomList);
+        // Reset modal states to reflect the default styles
+        setFontSize('16px');
+        setBackgroundColor('');
+        setSelectedFont('Inter');
 
         setShowModal(false);
         setCurrentSelectedRootParentTag(null);
-    }
+    }, [currentSelectedRootParentTag, customList]);
+
 
     const handleDownloadPDF = async () => {
         const pdfElement = targetRef.current;
@@ -417,7 +401,6 @@ function App() {
             throw new Error('PDF preview element not found');
         }
 
-        // Wait for MathJax to complete if available in the main window
         if (window.MathJax && window.MathJax.typesetPromise) {
             console.log("Waiting for MathJax to typeset in main window...");
             try {
@@ -425,223 +408,249 @@ function App() {
                 console.log("MathJax typesetting complete in main window.");
             } catch (error) {
                 console.error("MathJax typesetting failed in main window:", error);
-                // Continue even if MathJax fails, the inline script in the new window will try again
             }
         }
+
         const printContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
+            <!DOCTYPE html>
+            <html>
+            <head>
                 <title>Apps'n'Devices Technologies Pvt Ltd.</title>
-                    <meta charset="utf-8">
-                    <!-- Include Google Fonts -->
-                    ${googleFonts.map(font =>
+                <meta charset="utf-8">
+                ${googleFonts.map(font =>
             `<link href="https://fonts.googleapis.com/css2?family=${font.value}:wght@400;700&display=swap" rel="stylesheet">`
-        ).join('\n                ')}
+        ).join('\n')}
+                
+                <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+                <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+                <script>
+                    window.MathJax = {
+                        tex: {
+                            inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+                            displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+                        },
+                        options: {
+                            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    };
+                </script>
+                
+                <style>
+                    body {
+                        font-family: 'Inter', sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        margin: 0;
+                        padding: 20px;
+                        box-sizing: border-box;
+                    }
                     
-                    <!-- Include MathJax if needed -->
-                    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-                    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-                    <script>
-                        window.MathJax = {
-                            tex: {
-                                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-                                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
-                            },
-                            options: {
-                                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-                            }
-                        };
-                    </script>
+                    .mathjax-preview {
+                        padding: 0;
+                        min-height: auto;
+                        background-color: #fff;
+                        overflow-x: hidden;
+                        box-sizing: border-box;
+                        border: none;
+                    }
+    
+                    .mathjax-preview table {
+                        width: 100%;
+                        table-layout: fixed;
+                        border-collapse: collapse;
+                        margin: 0;
+                        overflow-x: auto;
+                        display: block;
+                        box-sizing: border-box;
+                        border: none;
+                    }
+                                    
+                    .mathjax-preview th,
+                    .mathjax-preview td {
+                        padding: 5px;
+                        text-align: left;
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                        box-sizing: border-box;
+                        border: none;
+                    }
+            
+                    .mathjax-preview pre,
+                    .mathjax-preview code {
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        overflow-x: auto;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        border-radius: 4px;
+                        display: block;
+                        box-sizing: border-box;
+                    }
+            
+                    .mathjax-preview p,
+                    .mathjax-preview h1,
+                    .mathjax-preview h2,
+                    .mathjax-preview h3,
+                    .mathjax-preview h4,
+                    .mathjax-preview h5,
+                    .mathjax-preview h6,
+                    .mathjax-preview ul,
+                    .mathjax-preview ol,
+                    .mathjax-preview li {
+                        margin: 0;
+                        padding: 0;
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                        border: none;
+                    }
                     
-                    <style>
+                    .mjx-chtml {
+                        word-wrap: normal;
+                        overflow-x: auto;
+                        display: block;
+                        border: none;
+                        min-height: 1em;
+                        line-height: 1.2;
+                        page-break-inside: avoid;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+                    
+                    /* Styles for the question item container */
+                    .question-item-container {
+                        display: flex;
+                        align-items: baseline;
+                        margin-bottom: 15px;
+                        page-break-inside: avoid;
+                    }
+    
+                    /* Styles for the question number */
+                    .question-number-print {
+                        margin-top: 0 !important;
+                        margin-bottom: 0 !important;
+                        padding: 0 8px 0 0 !important;
+                        white-space: nowrap;
+                        flex-shrink: 0;
+                        font-weight: bold;
+                        line-height: inherit;
+                    }
+    
+                    /* Styles for the main question content */
+                    .question-content {
+                        flex-grow: 1;
+                        page-break-inside: auto;
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                        margin: 0;
+                        padding: 0;
+                    }
+    
+                    .question-content td > math[display="block"],
+                    .question-content math[display="block"] {
+                        display: flex;
+                        align-items: baseline;
+                    }
+                    
+                    .question-content td > p {
+                        display: flex;
+                    }
+
+                    /* Image resizing for print */
+                    .question-content img {
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+    
+                    @media print {
+                        * {
+                            /* Removed aggressive overflow: hidden; */
+                        }
                         body {
-                            font-family: 'Inter', sans-serif;
-                            /* margin: 20px; */
-                            line-height: 1.6;
-                            color: #333;
-                        }
-                        
-                        .mathjax-preview {
-                            /* width: 100%; */
-                            padding: 15px;
-                            min-height: 200px;
-                            background-color: #fff;
-                            overflow-x: auto;
-                            box-sizing: border-box;
-                            border: none;
-                        }
-    
-                        .mathjax-preview table {
-                            width: 100%;
-                            table-layout: fixed;
-                            border-collapse: collapse;
                             margin: 0;
-                            overflow-x: auto;
-                            display: block;
-                            box-sizing: border-box;
-                            border: none;
-                        }
-                            
-                        .mathjax-preview th,
-                        .mathjax-preview td {
-                            padding: 5px;
-                            text-align: left;
-                            word-wrap: break-word;
-                            overflow-wrap: break-word;
-                            box-sizing: border-box;
-                            border: none;
-                        }
-    
-                        .mathjax-preview pre,
-                        .mathjax-preview code {
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
-                            overflow-x: auto;
-                            background-color: #f5f5f5;
-                            padding: 10px;
-                            border-radius: 4px;
-                            display: block;
-                            box-sizing: border-box;
-                        }
-    
-                        .mathjax-preview p,
-                        .mathjax-preview h1,
-                        .mathjax-preview h2,
-                        .mathjax-preview h3,
-                        .mathjax-preview h4,
-                        .mathjax-preview h5,
-                        .mathjax-preview h6,
-                        .mathjax-preview li {
-                            word-wrap: break-word;
-                            overflow-wrap: break-word;
-                            border: none;
-                            /* padding:0;
-                            margin:0 */
+                            padding: 20px;
                         }
                         
-                        .mjx-chtml {
-                            word-wrap: normal;
-                            overflow-x: auto;
-                            display: block;
-                            border: none;
-                            min-height: 1em;
-                            line-height: 1.2;
-                        }
-                        
-                        .question-content {
+                        .page-break-before { page-break-before: always; }
+                        .page-break-after { page-break-after: always; }
+                        .no-page-break { page-break-inside: avoid; }
+    
+                        .question-item-container {
                             page-break-inside: avoid;
+                            margin-bottom: 20px;
                         }
-
-                        .question-content td > math[display="block"] {
-                            display: flex;
-                        }
-
-                        /* Print styles */
-                        @media print {
-                            * {
-                            overflow: hidden;
-                            }
-                            body {
-                                margin: 0;
-                                padding: 20px;
-                                border: 1px solid
-                            }
-                            
-                            .page-break-before { page-break-before: always; }
-                            .page-break-after { page-break-after: always; }
-                            .no-page-break { page-break-inside: avoid; }
-
-                            .question-content {
-                                page-break-inside: avoid;
-                                margin-bottom: 20px;
-                            }
-
-                            .question-content td > math[display="block"] {
-                                display: flex;
-                            }
-
-                            .mjx-chtml {
-                                page-break-inside: avoid;
-                                -webkit-print-color-adjust: exact;
-                                color-adjust: exact;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="mathjax-preview">
-                        ${pdfElement.innerHTML}
-                    </div>
-                    
-                    <script>
-                        // Wait for content to load and MathJax to render, then trigger print
-                        window.addEventListener('load', function() {
-                            // If MathJax is available, wait for it to finish rendering
-                            if (window.MathJax && window.MathJax.startup) {
-                                window.MathJax.startup.promise.then(function() {
-                                    setTimeout(function() {
-                                        window.print();
-                                    }, 500);
-                                });
-                            } else {
-                                // If no MathJax, just wait a bit for fonts to load
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="mathjax-preview">
+                    ${pdfElement.innerHTML}
+                </div>
+                
+                <script>
+                    window.addEventListener('load', function() {
+                        if (window.MathJax && window.MathJax.startup) {
+                            window.MathJax.startup.promise.then(function() {
                                 setTimeout(function() {
                                     window.print();
-                                }, 1000);
-                            }
-                        });
-                        
-                        // Close window after printing (optional)
-                        window.addEventListener('afterprint', function() {
-                            // Uncomment the next line if you want to auto-close after printing
-                            window.close();
-                        });
-                    </script>
-                </body>
-                </html>
-            `;
+                                }, 500);
+                            });
+                        } else {
+                            setTimeout(function() {
+                                window.print();
+                            }, 1000);
+                        }
+                    });
+                    
+                    window.addEventListener('afterprint', function() {
+                        window.close();
+                    });
+                </script>
+            </body>
+            </html>
+        `;
         const blob = new Blob([printContent], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
 
         const printWindow = window.open(url, '_blank');
 
-        // Clean up the object URL after the window loads and potentially prints
         if (printWindow) {
             printWindow.onload = () => {
-                // Ensure the URL is revoked after the content has been loaded
                 setTimeout(() => URL.revokeObjectURL(url), 100);
             };
-            // Fallback for cases where onload might not fire reliably (e.g., pop-up blockers)
             printWindow.onbeforeunload = () => {
                 URL.revokeObjectURL(url);
             };
         } else {
-            // Handle case where printWindow is null (e.g., blocked by pop-up blocker)
             alert("Please allow pop-ups for this site to print.");
-            URL.revokeObjectURL(url); // Clean up immediately if window didn't open
+            URL.revokeObjectURL(url);
         }
-
-        // window.print();
-
-    }
+    };
 
     const handleFontSize = useCallback((type) => {
         const currentValue = Number(fontSize.slice(0, -2));
 
+        let newFontSizeValue;
         if (type === "down") {
-            if (currentValue <= 12) {
+            newFontSizeValue = currentValue - 1;
+            if (newFontSizeValue < 12) {
                 alert("Cannot go below 12px font-size.");
                 return;
             }
-            setFontSize(`${currentValue - 1}px`);
         } else if (type === "up") {
-            if (currentValue >= 34) {
+            newFontSizeValue = currentValue + 1;
+            if (newFontSizeValue > 34) {
                 alert("Cannot go beyond 34px font-size.");
                 return;
             }
-            setFontSize(`${currentValue + 1}px`);
+        } else {
+            return;
         }
+
+        const updatedFontSize = `${newFontSizeValue}px`;
+        setFontSize(updatedFontSize);
 
         if (!currentSelectedRootParentTag) {
             console.warn("No element selected to apply styles.");
@@ -656,14 +665,13 @@ function App() {
             return;
         }
 
-        // Map over customList to find the item by its 'id' and update its 'styles' object
         const updatedCustomList = customList.map(item => {
             if (item.id === selectedItemId) {
-                // Return a new object for immutability, updating only the 'styles'
                 return {
                     ...item,
                     styles: {
-                        fontSize: fontSize
+                        ...item.styles,
+                        fontSize: updatedFontSize
                     },
                     is_modified: true
                 };
@@ -671,63 +679,53 @@ function App() {
             return item;
         });
 
-        setCustomList(updatedCustomList); // This re-renders the component with new styles
+        setCustomList(updatedCustomList);
 
-        // Re-typeset MathJax, as font changes can affect its rendering dimensions
         if (window.MathJax && window.MathJax.typesetPromise) {
             setTimeout(() => {
                 window.MathJax.typesetPromise([contentWrapperRef.current])
                     .then(() => {
-                        console.log("MathJax re-typeset complete after style persistence!");
+                        console.log("MathJax re-typeset complete after font-size change!");
                     })
                     .catch(err => {
-                        console.error("MathJax re-typesetting error after style persistence:", err);
+                        console.error("MathJax re-typesetting error:", err);
                     });
             }, 50);
         } else {
-            console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
+            console.warn("MathJax object not available.");
         }
-        
     }, [currentSelectedRootParentTag, customList, fontSize]);
 
     return (
         <>
             <div style={{ padding: 20 }}>
-
                 <h2>DOCX to HTML with MathML Preview</h2>
-
-                <input type="file" accept=".docx" onChange={handleFileChange} multiple /> {/* Added 'multiple' */}
+                <input type="file" accept=".docx" onChange={handleFileChange} multiple />
                 <button onClick={handleUpload} disabled={!file || file.length === 0}>Upload & Preview</button>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <div
                         ref={previewRef}
                         className="mathjax-preview"
-                        style={{
-                            border: "1px solid #ccc",
-                            padding: "15px",
-                            minHeight: "200px",
-                            backgroundColor: "#fff",
-                        }}
                     >
                         <div ref={contentWrapperRef}>
                             {customList?.length > 0 && customList?.map((ele, index) => {
-
                                 if (ele.type === 'question') {
                                     const questionNumber = customList.slice(0, index).filter(item => item.type === 'question').length + 1;
 
                                     return (
-                                        <div style={{ display: "flex", alignItems: "flex-start" }} key={ele.id} data-item-id={ele.id}>
-                                            <p style={{ marginTop: '16px', whiteSpace: "nowrap", padding: "5px" }}>{`${questionNumber}. `}</p>
+                                        <div
+                                            key={ele.id} // Key should be on the outermost element
+                                            data-item-id={ele.id} // Attach data-item-id here for root parent selection
+                                            className="question-item-container" // New class for better targeting
+                                        // No inline style here, as question-content handles its own styles
+                                        >
+                                            <p className="question-number">{`${questionNumber}. `}</p>
                                             <div
-                                                key={ele.id}
-                                                data-item-id={ele.id}
                                                 className="question-content"
                                                 style={{
-                                                    fontSize: ele.styles.fontSize,
-                                                    backgroundColor: ele.styles.backgroundColor,
-                                                    fontFamily: `${ele.styles.fontFamily}, sans-serif`,
-                                                    flexGrow: 1,
-                                                    // border: "1px solid"
+                                                    fontSize: ele.styles?.fontSize, // Use optional chaining for safety
+                                                    backgroundColor: ele.styles?.backgroundColor,
+                                                    fontFamily: `${ele.styles?.fontFamily}, sans-serif`,
                                                 }}
                                                 dangerouslySetInnerHTML={{ __html: ele.rawContent }}
                                             />
@@ -736,9 +734,8 @@ function App() {
                                 } else {
                                     return (
                                         <div
-                                            style={{ border: '1px dotted black', margin: '10px 0px', overflow: "auto" }}
                                             key={ele.id}
-                                            className="dynamic-action-p"
+                                            className="dynamic-editor-slot" // Renamed class for clarity
                                             data-action-type="insert-editor"
                                             data-list-index={index}
                                             dangerouslySetInnerHTML={{ __html: ele.content }}
@@ -748,12 +745,25 @@ function App() {
                             })}
                         </div>
                     </div>
-                    {/* PDF preview part */}
                     <PDFPreview targetRef={targetRef} customList={customList} />
                 </div>
                 <button onClick={handleDownloadPDF}>Download PDF</button>
                 {showModal && (
-                    <StyleModal modalRef={modalRef} fontSize={fontSize} setFontSize={setFontSize} backgroundColor={backgroundColor} setBackgroundColor={setBackgroundColor} selectedFont={selectedFont} setSelectedFont={setSelectedFont} googleFonts={googleFonts} applyStyleToSelectedElement={applyStyleToSelectedElement} setShowModal={setShowModal} setCurrentSelectedRootParentTag={setCurrentSelectedRootParentTag} handleResetStyle={handleResetStyle} handleFontSize={handleFontSize} />
+                    <StyleModal
+                        modalRef={modalRef}
+                        fontSize={fontSize}
+                        setFontSize={setFontSize}
+                        backgroundColor={backgroundColor}
+                        setBackgroundColor={setBackgroundColor}
+                        selectedFont={selectedFont}
+                        setSelectedFont={setSelectedFont}
+                        googleFonts={googleFonts}
+                        applyStyleToSelectedElement={applyStyleToSelectedElement}
+                        setShowModal={setShowModal}
+                        setCurrentSelectedRootParentTag={setCurrentSelectedRootParentTag}
+                        handleResetStyle={handleResetStyle}
+                        handleFontSize={handleFontSize}
+                    />
                 )}
             </div>
             {openModal &&

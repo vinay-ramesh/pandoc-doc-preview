@@ -1,0 +1,536 @@
+/* Base body styles with responsive box model */
+body {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  
+  /* Universal box sizing */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  /* Jodit editor container */
+  .jodit-container:not(.jodit_inline) .jodit-wysiwyg {
+    margin: 0;
+    outline: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 8px;
+    position: relative;
+  }
+  
+  /* Main application container */
+  .app-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  /* App header styles */
+  .app-header {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .app-header h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  }
+  
+  /* Upload controls */
+  .upload-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .upload-controls input[type="file"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .upload-controls button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  
+  .upload-controls button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .upload-controls button:hover:not(:disabled) {
+    background: #0056b3;
+  }
+  
+  /* Main content layout */
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 600px;
+  }
+  
+  /* MathJax preview container with enhanced responsive design */
+  .mathjax-preview {
+    width: 100%;
+    padding: 20px;
+    min-height: 400px;
+    background-color: #f9f9f9;
+    overflow-x: auto;
+    overflow-y: auto;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    position: relative;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  /* Content wrapper for better organization */
+  .content-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  
+  /* Question container with flexible layout */
+  .question-item-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  
+  .question-number {
+    flex-shrink: 0;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+    padding: 0;
+    min-width: 30px;
+    line-height: inherit;
+  }
+  
+  .question-content {
+    flex: 1;
+    width: 0; /* This helps with flex item overflow */
+    min-width: 0; /* Allow shrinking below content size */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Enhanced responsive image styles */
+  .mathjax-preview img,
+  .question-content img,
+  .responsive-image {
+    max-width: 100% !important;
+    height: auto !important;
+    width: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 15px auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    
+    /* Responsive sizing based on container and font-size */
+    min-width: 50px;
+    min-height: 30px;
+  }
+  
+  /* Specific image container handling */
+  .question-content img {
+    /* Scale images relative to the text font size */
+    width: clamp(200px, 80%, 600px);
+    max-width: 100%;
+  }
+  
+  /* Handle images in different zoom levels */
+  @media screen and (min-width: 1200px) {
+    .mathjax-preview img,
+    .question-content img {
+      width: clamp(250px, 70%, 500px);
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .mathjax-preview img,
+    .question-content img {
+      width: clamp(150px, 90%, 400px);
+      margin: 10px auto;
+    }
+  }
+  
+  /* Table responsive styles */
+  .mathjax-preview table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+    margin: 15px 0;
+    overflow-x: auto;
+    display: block;
+    box-sizing: border-box;
+    border: none;
+    white-space: nowrap;
+  }
+  
+  .mathjax-preview table tbody {
+    display: table;
+    width: 100%;
+  }
+  
+  .mathjax-preview th,
+  .mathjax-preview td {
+    padding: 8px 12px;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    background: white;
+    min-width: 100px;
+  }
+  
+  .mathjax-preview th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  /* Code and pre elements */
+  .mathjax-preview pre,
+  .mathjax-preview code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    display: block;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    border: 1px solid #e9ecef;
+  }
+  
+  /* Text elements with responsive typography */
+  .mathjax-preview p,
+  .mathjax-preview h1,
+  .mathjax-preview h2,
+  .mathjax-preview h3,
+  .mathjax-preview h4,
+  .mathjax-preview h5,
+  .mathjax-preview h6,
+  .mathjax-preview li {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border: none;
+    margin: 0.5em 0;
+    padding: 0;
+    max-width: 100%;
+  }
+  
+  .mathjax-preview ul,
+  .mathjax-preview ol {
+    padding-left: 30px;
+    margin: 10px 0;
+  }
+  
+  .mathjax-preview li {
+    margin: 5px 0;
+  }
+  
+  /* MathJax elements */
+  .mjx-chtml {
+    word-wrap: normal;
+    overflow-x: auto;
+    display: inline-block;
+    border: none;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+  
+  /* Block math handling */
+  .mjx-chtml[display="block"] {
+    display: block;
+    text-align: center;
+    margin: 15px auto;
+    overflow-x: auto;
+  }
+  
+  /* Dynamic action paragraphs */
+  .dynamic-action-p {
+    color: #666;
+    padding: 12px 20px;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 15px 0;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #fafafa;
+  }
+  
+  .dynamic-action-p:hover {
+    background: #f0f0f0;
+    border-color: #999;
+    color: #333;
+  }
+  
+  /* Editor placeholder styles */
+  .editor-placeholder {
+    margin: 10px 0;
+  }
+  
+  .editor-placeholder .dynamic-action-p {
+    font-style: italic;
+    user-select: none;
+  }
+  
+  /* App footer */
+  .app-footer {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .download-btn {
+    padding: 12px 30px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+  }
+  
+  .download-btn:hover {
+    background: #218838;
+  }
+  
+  /* PDF Preview styles */
+  #mathjax-preview-pdf {
+    background: white;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow-y: auto;
+    max-height: 100%;
+  }
+  
+  #mathjax-preview-pdf p {
+    padding: 0;
+    margin: 0.5em 0;
+  }
+  
+  #mathjax-preview-pdf .dynamic-action-p {
+    padding: 0;
+    border: none;
+    background: none;
+    color: transparent;
+    margin: 0;
+  }
+  
+  #mathjax-preview-pdf .question-number-print {
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  
+  /* Responsive breakpoints */
+  @media screen and (max-width: 1024px) {
+    .main-content {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    
+    .app-container {
+      padding: 15px;
+    }
+    
+    .mathjax-preview {
+      padding: 15px;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .app-container {
+      padding: 10px;
+      gap: 15px;
+    }
+    
+    .app-header {
+      padding: 15px;
+    }
+    
+    .upload-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .upload-controls input[type="file"] {
+      min-width: auto;
+      width: 100%;
+    }
+    
+    .mathjax-preview {
+      padding: 12px;
+      min-height: 300px;
+    }
+    
+    .question-item-container {
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .question-number {
+      min-width: auto;
+    }
+    
+    .question-content {
+      width: 100%;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .app-header h2 {
+      font-size: 1.2rem;
+    }
+    
+    .mathjax-preview {
+      padding: 8px;
+      font-size: 14px;
+    }
+    
+    .mathjax-preview img,
+    .question-content img {
+      width: clamp(120px, 95%, 300px);
+      margin: 8px auto;
+    }
+    
+    .mathjax-preview th,
+    .mathjax-preview td {
+      padding: 6px 8px;
+      font-size: 0.9em;
+    }
+  }
+  
+  /* Zoom level adjustments */
+  @media screen and (min-width: 1440px) {
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+  }
+  
+  /* High DPI displays */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .mathjax-preview img,
+    .question-content img {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimize-contrast;
+    }
+  }
+  
+  /* Print styles */
+  @media print {
+    .app-header,
+    .app-footer,
+    .upload-controls {
+      display: none;
+    }
+    
+    .main-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .mathjax-preview {
+      background: white;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    
+    .question-item-container {
+      page-break-inside: avoid;
+      margin-bottom: 15px;
+    }
+    
+    .mathjax-preview img,
+    .question-content img {
+      max-width: 100% !important;
+      page-break-inside: avoid;
+    }
+  }
+  
+  /* Browser zoom compensation */
+  @supports (zoom: 1) {
+    .mathjax-preview img,
+    .question-content img {
+      /* Adjust for different zoom levels */
+      width: clamp(150px, calc(70% / var(--zoom-level, 1)), 500px);
+    }
+  }
+  
+  /* Focus and selection states */
+  .question-content:focus-within,
+  .mathjax-preview:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Custom scrollbar */
+  .mathjax-preview::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .mathjax-preview::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .mathjax-preview::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+  
+  .mathjax-preview::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
