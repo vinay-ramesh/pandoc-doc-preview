@@ -340,8 +340,17 @@ function App() {
 
     const updatedEditorContent = useCallback((updatedContent) => {
         const contentToReplace = updatedContent.replace(/<\/?p>/g, "")
-        console.log("contentToReplace", contentToReplace)
-        if (contentToReplace && contentToReplace !== "Insert text here") {
+
+        const isContentEmptyAdvanced = (htmlContent) => {
+            return htmlContent
+                .replace(/&nbsp;/g, '')
+                .replace(/<br\s*\/?>/gi, '')
+                .replace(/<p[^>]*>\s*<\/p>/gi, '') // Remove empty <p> tags
+                .replace(/<div[^>]*>\s*<\/div>/gi, '') // Remove empty <div> tags
+                .replace(/\s+/g, '')
+                .trim() === '';
+        };
+        if (!isContentEmptyAdvanced(contentToReplace)) {
             setCustomList((prevState) => {
                 const newList = [...prevState]
                 if (newList[selectedIndex]) {
@@ -356,6 +365,21 @@ function App() {
                 return newList;
             })
         }
+        // if (contentToReplace.trim().length && contentToReplace !== "Insert text here") {
+        //     setCustomList((prevState) => {
+        //         const newList = [...prevState]
+        //         if (newList[selectedIndex]) {
+        //             newList[selectedIndex] = {
+        //                 ...newList[selectedIndex],
+        //                 // content: `<p class="dynamic-action-p" data-action-type="insert-editor" data-list-index=${selectedIndex}>${contentToReplace}</p>`,
+        //                 content: `<p>${contentToReplace}</p>`,
+        //                 // content: `<p>${contentToReplace ? contentToReplace : "Insert text here"}</p>`,
+        //                 is_modified: true
+        //             }
+        //         }
+        //         return newList;
+        //     })
+        // }
     }, [selectedIndex])
 
     useEffect(() => {
@@ -687,7 +711,7 @@ function App() {
         } else {
             console.warn("MathJax object not available for typesetting. Ensure it's loaded in index.html.");
         }
-        
+
     }, [currentSelectedRootParentTag, customList, fontSize]);
 
     return (
