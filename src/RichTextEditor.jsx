@@ -121,7 +121,7 @@ const RichTextEditor = ({ initialValue = '', onChange, placeholder }) => {
                     setContent(newContent);
                     onChange && onChange(newContent);
                 }}
-                onChange={(newContent) => setContent(newContent)}
+                // onChange={(newContent) => setContent(newContent)}
             />
         </div>
     );
